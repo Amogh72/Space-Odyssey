@@ -629,9 +629,163 @@
         background:var(--glow);
     }
 
+    /* =============================================
+       RESPONSIVE BREAKPOINTS
+       xs  < 360px   (tiny phones)
+       sm  360–480px (phones)
+       md  481–768px (large phones / small tablets)
+       lg  769–1024px (tablets)
+       xl  > 1024px  (desktop)
+    ============================================= */
+
+    /* --- PHASE LABEL --- */
+    .phase-label {
+        font-size: clamp(0.5rem, 1.8vw, 0.7rem);
+        word-break: break-word;
+    }
+
+    /* --- SURVIVAL HEADER --- */
     @media (max-width: 480px) {
-        .survival-header { flex-direction: column; align-items: flex-start; }
-        .header-stats { width: 100%; justify-content: space-between; }
+        .survival-header {
+            flex-direction: column;
+            align-items: flex-start;
+            padding: 10px 12px;
+            gap: 6px;
+        }
+        .header-stats {
+            width: 100%;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .health-bar-container,
+        .supply-bar {
+            width: clamp(60px, 28vw, 100px);
+        }
+        .stat { font-size: 0.6rem; letter-spacing: 1px; }
+        .stat-value { font-size: 0.9rem !important; }
+    }
+
+    /* Even smaller phones */
+    @media (max-width: 360px) {
+        .health-bar-container,
+        .supply-bar { width: 55px; }
+        .health-wrap { gap: 5px; }
+    }
+
+    /* --- EVENT PANEL --- */
+    @media (max-width: 600px) {
+        .event-panel {
+            margin: 10px 10px;
+            padding: 16px 14px;
+            border-top-width: 2px;
+        }
+        .event-title { font-size: clamp(1.1rem, 6vw, 1.5rem); margin-bottom: 10px; }
+        .event-desc  { font-size: clamp(0.78rem, 3.5vw, 0.9rem); line-height: 1.7; margin-bottom: 16px; }
+        .choices-area { gap: 10px; }
+        .choice-btn {
+            padding: 12px 12px;
+            font-size: clamp(0.75rem, 3.2vw, 0.9rem);
+        }
+        .choice-btn:hover { transform: none; } /* avoid shift on small touch screens */
+        .choice-btn:active { transform: translateX(3px); }
+    }
+
+    @media (max-width: 360px) {
+        .event-panel { margin: 8px 6px; padding: 14px 10px; }
+        .choice-btn  { padding: 10px 10px; font-size: 0.72rem; }
+    }
+
+    /* --- CRITICAL WARNING --- */
+    @media (max-width: 480px) {
+        .critical-warning { padding: 12px 12px; }
+        .warning-title    { font-size: 0.95rem; }
+        .warning-text     { font-size: 0.75rem; line-height: 1.5; }
+    }
+
+    /* --- FIXED BOTTOM BUTTONS (glossary + restart) ---
+       Stack them when both visible so they don't overlap */
+    @media (max-width: 480px) {
+        .glossary-btn {
+            bottom: 52px;   /* sit above restart button */
+            left: 10px;
+            font-size: 0.62rem;
+            padding: 7px 10px;
+        }
+        .restart-btn {
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.62rem;
+            padding: 7px 10px;
+        }
+    }
+
+    /* On very wide screens keep buttons from getting too big */
+    @media (min-width: 1200px) {
+        .glossary-btn, .restart-btn { font-size: 0.75rem; padding: 9px 18px; }
+    }
+
+    /* --- TOOLTIP --- */
+    @media (max-width: 480px) {
+        .term-tooltip {
+            font-size: 0.65rem;
+            max-width: calc(100vw - 24px);
+            padding: 7px 10px;
+        }
+    }
+
+    /* --- MODAL --- */
+    @media (max-width: 480px) {
+        .modal-overlay { padding: 10px; align-items: flex-end; }
+        .modal-container { max-height: 80vh; border-radius: 4px 4px 0 0; }
+        .modal-header { font-size: 1.1rem; padding: 14px; letter-spacing: 2px; }
+        .modal-body   { font-size: 0.8rem; padding: 16px; }
+        .modal-footer { padding: 12px; gap: 8px; }
+        .modal-btn    { font-size: 0.72rem; padding: 10px 18px; width: 100%; text-align: center; }
+    }
+
+    /* --- GLOSSARY PANEL --- */
+    @media (max-width: 480px) {
+        .glossary-panel   { padding: 0; align-items: flex-end; }
+        .glossary-content {
+            max-height: 88vh;
+            border-radius: 4px 4px 0 0;
+            padding: 20px 16px;
+        }
+        .glossary-header  { font-size: 1.2rem; }
+        .glossary-term h4 { font-size: 0.9rem; }
+        .glossary-term p  { font-size: 0.73rem; }
+        .close-glossary   { font-size: 0.75rem; padding: 10px; }
+    }
+
+    /* --- REFUGEE / CAMP CARD --- */
+    @media (max-width: 600px) {
+        .refugee-section { padding: 14px 10px; }
+        .camp-card        { padding: 18px 14px; }
+        .dialogue         { font-size: clamp(0.82rem, 3.5vw, 0.95rem); line-height: 1.8; }
+        .grave-marker     { font-size: clamp(0.74rem, 3vw, 0.85rem); padding: 12px 12px; }
+        .end-btn          { font-size: clamp(1rem, 5vw, 1.4rem); letter-spacing: 1px; }
+        .final-message    { font-size: 0.75rem; }
+    }
+
+    /* --- CINEMATIC INTRO --- */
+    @media (max-width: 360px) {
+        .planet-name   { font-size: clamp(2rem, 16vw, 3.5rem); }
+        .start-descent { font-size: 0.78rem; padding: 10px 20px; letter-spacing: 2px; }
+    }
+
+    /* --- TABLET tweaks (481–768) --- */
+    @media (min-width: 481px) and (max-width: 768px) {
+        .event-panel  { margin: 15px 16px; }
+        .choice-btn   { font-size: 0.85rem; }
+        .survival-header { flex-wrap: nowrap; }
+        .glossary-btn { font-size: 0.65rem; }
+        .restart-btn  { font-size: 0.65rem; }
+    }
+
+    /* --- Large tablet / small desktop (769–1024) --- */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .event-panel  { max-width: 720px; }
+        .camp-card    { max-width: 720px; }
     }
 </style>
 </head>
@@ -796,21 +950,29 @@
         const definition = termEl.getAttribute('data-def');
         if(!definition) return;
         tooltip.innerHTML = `<strong style="color:var(--info);">📖 ${termEl.innerText}</strong><br>${definition}`;
+
+        const pad = 10;
+        const vw  = window.innerWidth;
+        const vh  = window.innerHeight;
+        const maxW = Math.min(280, vw - 2 * pad);
+        tooltip.style.maxWidth = maxW + 'px';
+        tooltip.style.left = '0px';
+        tooltip.style.top  = '0px';
         tooltip.style.display = 'block';
 
-        // Position: keep inside viewport
-        const pad = 12;
-        const tw = Math.min(280, window.innerWidth - 2 * pad);
-        tooltip.style.maxWidth = tw + 'px';
+        // Read real rendered size
+        const tw = tooltip.offsetWidth;
+        const th = tooltip.offsetHeight;
 
+        // Prefer right of cursor, flip left if needed
         let x = clientX + 15;
-        let y = clientY - 40;
+        if(x + tw > vw - pad) x = clientX - tw - 10;
+        x = Math.max(pad, Math.min(x, vw - tw - pad));
 
-        // After making visible, clamp
-        const tr = tooltip.getBoundingClientRect();
-        if(x + tr.width > window.innerWidth - pad) x = clientX - tr.width - 10;
+        // Prefer above cursor, flip below if needed
+        let y = clientY - th - 10;
         if(y < pad) y = clientY + 20;
-        if(y + tr.height > window.innerHeight - pad) y = window.innerHeight - tr.height - pad;
+        y = Math.max(pad, Math.min(y, vh - th - pad));
 
         tooltip.style.left = x + 'px';
         tooltip.style.top  = y + 'px';

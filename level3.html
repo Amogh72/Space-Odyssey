@@ -255,9 +255,9 @@
 
         const intel = document.getElementById('intel-box');
         if (shipClass === "GHOST RUNNER") {
-            intel.innerHTML = "<b>Standard Injection:</b> Ration load is light — survival days are short.";
+            intel.innerHTML = "<b>GhostRunner Path:</b> The rocket you built was lighter so you can load limited ration. This path reaches Mars in about 180-225 days so make sure to load rations accordingly.";
         } else {
-            intel.innerHTML = "<b>Titan Path:</b> A stray orbit survives — high mass means many survival days.";
+            intel.innerHTML = "<b>Titan Path:</b> The rocket you built is heavy so it can't reach the required escape velocity. So we will take a stray orbit, for that you need atleast a velocity of 10.4 km/s. Also the Stray orbit is a very long route so load a lot of rations.";
         }
         calculatePhysics();
     }

@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Level 1 — Stolen Elysian Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro&display=swap" rel="stylesheet">
+
+<style>
+:root { --rust:#c0392b; --glow:#ff6b35; --pale:#d4c9b8; --bg:#050303; --teal:#00f2ff; }
+*{margin:0;padding:0;box-sizing:border-box;}
+
+html, body {
+    background:var(--bg);
+    color:var(--pale);
+    font-family:'Share Tech Mono';
+    height:100%;
+    min-height:100vh;
+}
+
+body {
+    display:flex;
+    flex-direction:column;
+}
+
+/* --- Custom Scrollbar --- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #000; border-left: 1px solid rgba(192,57,43,0.1); }
+::-webkit-scrollbar-thumb { background: var(--rust); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--glow); }
+
+/* ── Top banner ── */
+.elysian-header {
+    padding: clamp(7px, 1.5vh, 10px);
+    background: var(--rust);
+    color: #000;
+    text-align: center;
+    font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+    letter-spacing: clamp(1px, 0.4vw, 3px);
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* ── Header bar ── */
+header {
+    padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #000;
+    flex-shrink: 0;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: clamp(0.55rem, 1.8vw, 0.75rem);
+    letter-spacing: 0.05em;
+}
+
+/* ── Main layout ── */
+main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: clamp(12px, 2.5vw, 20px);
+    padding: clamp(16px, 3vw, 30px);
+    overflow: hidden;
+    position: relative;
+    min-height: 0; /* allow grid children to scroll */
+}
+
+/* Tablet: stack side panel below */
+@media (max-width: 860px) {
+    main {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+        overflow: visible;
+        padding: clamp(12px, 2.5vw, 20px);
+    }
+}
+
+/* Mobile: reduce padding */
+@media (max-width: 480px) {
+    main { padding: 12px; gap: 12px; }
+}
+
+main::before {
+    content: "INTERNAL USE ONLY - ELYSIAN CORP";
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%) rotate(-30deg);
+    font-size: clamp(2rem, 6vw, 5rem);
+    color: rgba(192,57,43,0.03);
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+/* ── Terminal / log window ── */
+.terminal-window {
+    background: rgba(10,5,5,0.9);
+    border: 1px solid rgba(192,57,43,0.3);
+    padding: clamp(20px, 4vw, 40px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rust) #000;
+    min-height: 0;
+}
+
+/* On tablet/mobile the terminal has a fixed height so it scrolls */
+@media (max-width: 860px) {
+    .terminal-window {
+        max-height: 45vh;
+        min-height: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .terminal-window {
+        max-height: 38vh;
+        padding: 16px;
+    }
+}
+
+/* ── Log entries ── */
+.log-entry {
+    margin-bottom: clamp(20px, 4vh, 35px);
+    border-left: 3px solid var(--rust);
+    padding-left: clamp(14px, 3vw, 25px);
+    animation: slideIn 0.4s ease-out;
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    line-height: 1.7;
+}
+
+.data-header {
+    color: var(--glow);
+    font-size: clamp(1rem, 3.5vw, 1.4rem);
+    font-family: 'Bebas Neue';
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* ── Side panel ── */
+.side-panel {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(10px, 2vh, 15px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rust) #000;
+    min-height: 0;
+}
+
+/* Tablet: side panel becomes horizontal row of nodes */
+@media (max-width: 860px) {
+    .side-panel {
+        flex-direction: row;
+        flex-wrap: wrap;
+        overflow-y: visible;
+        overflow-x: auto;
+        gap: 10px;
+        padding-bottom: 4px;
+    }
+}
+
+/* ── Data nodes ── */
+.data-node {
+    background: #0f0a0a;
+    border: 1px solid var(--rust);
+    padding: clamp(14px, 2.5vw, 20px);
+    cursor: pointer;
+    transition: 0.3s;
+    flex-shrink: 0;
+}
+
+/* On tablet: nodes share space in a row */
+@media (max-width: 860px) {
+    .data-node {
+        flex: 1 1 140px;
+        min-width: 130px;
+    }
+}
+
+@media (max-width: 480px) {
+    .data-node {
+        flex: 1 1 120px;
+        min-width: 110px;
+        padding: 12px;
+    }
+}
+
+.data-node h3 {
+    font-size: clamp(0.7rem, 2vw, 0.9rem);
+    margin-bottom: 4px;
+}
+.data-node p {
+    font-size: clamp(0.6rem, 1.5vw, 0.8rem);
+    color: #666;
+}
+
+.data-node:hover { background: #1a0f0f; border-color: var(--glow); }
+.data-node.active { border-color: var(--teal); background: #001a1d; }
+.data-node.read-complete { cursor: default; opacity: 0.8; }
+
+/* ── Override / decrypt section ── */
+#override-section {
+    display: none;
+    margin-top: clamp(12px, 2vh, 20px);
+    border: 1px solid var(--teal);
+    padding: clamp(12px, 2.5vw, 15px);
+}
+
+#override-section p {
+    color: var(--teal);
+    font-size: clamp(0.55rem, 1.5vw, 0.7rem);
+    margin-bottom: 6px;
+}
+
+#velocity-input {
+    background: #000;
+    border: 1px solid var(--teal);
+    color: var(--teal);
+    padding: 8px;
+    font-family: 'Share Tech Mono';
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+    width: clamp(70px, 20vw, 80px);
+    margin: 10px 8px 10px 0;
+}
+
+#override-section button {
+    background: var(--teal);
+    border: none;
+    padding: clamp(6px, 1.5vh, 8px) clamp(12px, 3vw, 15px);
+    font-family: 'Bebas Neue';
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+/* ── Action bar (footer) ── */
+#action-bar {
+    display: none;
+    padding: clamp(14px, 2.5vh, 20px) clamp(14px, 3vw, 20px);
+    border-top: 2px solid var(--rust);
+    background: #000;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+#mann-message {
+    font-size: clamp(0.65rem, 1.8vw, 0.8rem);
+    line-height: 1.6;
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-next {
+    padding: clamp(10px, 2vh, 12px) clamp(22px, 5vw, 40px);
+    background: var(--teal);
+    color: #000;
+    border: none;
+    font-family: 'Bebas Neue';
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    flex-shrink: 0;
+}
+
+/* On very small screens, stack action bar vertically */
+@media (max-width: 480px) {
+    #action-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .btn-next { width: 100%; text-align: center; }
+}
+
+/* ── Landscape phone: tighter layout ── */
+@media (max-height: 500px) and (orientation: landscape) {
+    .terminal-window { max-height: 50vh; }
+    main { padding: 8px; gap: 8px; }
+}
+
+@keyframes slideIn {
+    from { opacity:0; transform:translateX(-20px); }
+    to   { opacity:1; transform:translateX(0); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="elysian-header">CLASSIFIED // PROPERTY OF ELYSIAN CORPORATION</div>
+
+<header>
+    <div>[ STATUS ] DECRYPTING STOLEN_LOG_01.dat</div>
+    <div id="progress-text">DATA EXTRACTED: 0 / 3</div>
+</header>
+
+<main>
+    <div class="terminal-window" id="log">
+        <div class="log-entry">
+            <span class="data-header">DIR: /ESCAPE_PROTOCOLS/</span>
+            These logs contain fragments of pre-collapse rocket science.
+            <br><br>
+            <b>Your objective: Learn how to leave Earth.</b>
+        </div>
+    </div>
+
+    <div class="side-panel">
+        <div class="data-node" id="n1" onclick="loadData(1)">
+            <h3>I. Log: Rocket Architecture</h3>
+            <p>Structure &amp; Stability</p>
+        </div>
+        <div class="data-node" id="n2" onclick="loadData(2)">
+            <h3>II. Log: Orbital Mechanics</h3>
+            <p>How to Stay in Orbit</p>
+        </div>
+        <div class="data-node" id="n3" onclick="loadData(3)">
+            <h3>III. Log: Escape Velocity</h3>
+            <p>Breaking Free</p>
+        </div>
+
+        <div id="override-section">
+            <p>INPUT ESCAPE VELOCITY (KM/S)</p>
+            <input type="number" id="velocity-input" step="0.1" placeholder="00.0" inputmode="decimal">
+            <button onclick="checkOverride()">DECRYPT</button>
+        </div>
+    </div>
+</main>
+
+<footer id="action-bar">
+    <div id="mann-message"></div>
+    <button class="btn-next" onclick="nextLevel()">ACCESS HANGAR →</button>
+</footer>
+
+<script>
+let readNodes = new Set();
+const log = document.getElementById('log');
+
+const technicalDocs = {
+    1: {
+        title: "PROPULSION LOG: MASS & FUEL",
+        content: `Rockets are mostly fuel. A vehicle's ability to gain speed depends on how much fuel it carries compared to its own weight.<br><br><b>Mass Ratio = Total Mass / Empty Mass</b><br><br>Observation: Most successful launches used extremely high fuel mass. Heavier structures require significantly more fuel.`
+    },
+    2: {
+        title: "GRAVITY MODEL: EARTH ESCAPE",
+        content: `Earth's gravity creates a binding limit. To leave the planet completely, an object must reach a critical speed:<br><br><b>Escape Velocity ≈ 11.2 km/s</b><br><br>Below this speed, the object falls back. At this speed, it breaks free from Earth's pull.`
+    },
+    3: {
+        title: "FLIGHT LOG: ORBITAL VELOCITY",
+        content: `Reaching space is not enough. To stay in orbit, a vehicle must move sideways fast enough that the ground curves away beneath it.<br><br><b>Low Earth Orbit ≈ 7.8 km/s</b><br><br>Too slow: re-entry. Too fast: escape trajectory.`
+    }
+};
+
+function loadData(id) {
+    if (readNodes.has(id)) return;
+
+    document.querySelectorAll('.data-node').forEach(n => n.classList.remove('active'));
+    const currentNode = document.getElementById('n' + id);
+    currentNode.classList.add('active', 'read-complete');
+
+    readNodes.add(id);
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.innerHTML = `<span class="data-header">${technicalDocs[id].title}</span>${technicalDocs[id].content}`;
+    log.appendChild(entry);
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
+
+    document.getElementById('progress-text').innerText = `DATA EXTRACTED: ${readNodes.size} / 3`;
+
+    if (readNodes.size === 3) showFinal();
+}
+
+function showFinal() {
+    document.getElementById('override-section').style.display = 'block';
+    const entry = document.createElement('div');
+    entry.className = 'log-entry';
+    entry.style.borderLeftColor = 'var(--teal)';
+    entry.innerHTML = `
+        <span class="data-header" style="color:var(--teal)">LIFE SUPPORT FILE</span>
+        Mars is not empty. It is hostile. Survival requires Oxygen, Water recycling, and Food production.
+    `;
+    log.appendChild(entry);
+    log.scrollTo({ top: log.scrollHeight, behavior: 'smooth' });
+}
+
+function checkOverride() {
+    const val = document.getElementById('velocity-input').value;
+    if (val == "11.2") {
+        document.getElementById('action-bar').style.display = 'flex';
+        document.getElementById('override-section').innerHTML = "<p style='color:var(--teal)'>ACCESS GRANTED</p>";
+        document.getElementById('mann-message').innerHTML = `
+            <p style="color:var(--rust);font-size:0.8rem;">// SOURCE: DR. ARIS MANN</p>
+            "The curse... everyone loves that word now. They say it was you who depleted Earth 
+            of its resources, but no... It was their greed. The Elysian, they won't let you leave. 
+            They are tracking y—"<br><span style="color:var(--rust);font-weight:bold;">[CONNECTION LOST]</span>
+        `;
+        // Scroll to footer on mobile so user sees the next button
+        document.getElementById('action-bar').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+        alert("Trajectory failure. You are still bound to Earth.");
+    }
+}
+
+function nextLevel() {
+    localStorage.setItem("maxLevel", 2);
+    window.location.href = "index.html";
+}
+</script>
+</body>
+</html>

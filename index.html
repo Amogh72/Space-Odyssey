@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Odyssey</title>
+    <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.0/css/all.min.css" 
+          integrity="sha512-DxV+EoADOkOygM4IR9yXP8Sb2qwgidEmeqAEmDKIOfPRQZOWbXCzLC6vjbZyy0vPisbH2SyW27+ddLVCN+OMzQ==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="header">
+        <div class="navbar">
+            <img src="navLogo.png">
+        </div>
+    </div>
+
+    <div class="hero-section reveal">
+        <div class="hero-slider">
+            <img class="hero-img active" src="hero1.png">
+            <img class="hero-img" src="hero2.png">
+        </div>
+    </div>
+
+    <div class="levelManual reveal">
+        <div class="levelImg">
+            <img src="levelImg.png">
+        </div>
+    </div>
+
+    <div class="levels reveal">
+
+        <div class="level" data-level="1">
+            <div class="level-content">
+                <div class="levelNumber">
+                    <h2>01</h2>
+                </div>
+                <div class="levelInfo">
+                    <div class="liTitle">
+                        <p>The Dying Earth</p>
+                    </div>
+                    <div class="liDesc">
+                        The world you knew is gone. Learn the truth — why resources vanished,
+                        who hoarded the ships, and how the system crushed the poor.
+                        Your rebellion starts with knowledge.
+                    </div>
+                </div>
+                <div class="liStatus">
+                    <button onclick="startLevel(1)">LAUNCH</button>
+                    <p>● UNLOCKED</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="level locked" data-level="2">
+            <div class="level-content">
+                <div class="levelNumber">
+                    <h2>02</h2>
+                </div>
+                <div class="levelInfo">
+                    <div class="liTitle">
+                        <p>The Ares-I</p>
+                    </div>
+                    <div class="liDesc">
+                        Use your knowledge and, bypass security to piece together
+                        a vessel from scavenged parts. One wrong move and it's over.
+                        Every bolt has a purpose — learn them.
+                    </div>
+                </div>
+                <div class="liStatus">
+                    <button class="level-btn" disabled>LAUNCH</button>
+                    <p>● LOCKED</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="level locked" data-level="3">
+            <div class="level-content">
+                <div class="levelNumber">
+                    <h2>03</h2>
+                </div>
+                <div class="levelInfo">
+                    <div class="liTitle">
+                        <p>Flight</p>
+                    </div>
+                    <div class="liDesc">
+                        Load supplies and initiate burn.
+                        Miss the window and you fall back — or worse. 
+                        The clock is counting.
+                    </div>
+                </div>
+                <div class="liStatus">
+                    <button class="level-btn" disabled>LAUNCH</button>
+                    <p>● LOCKED</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="level locked" data-level="4">
+            <div class="level-content">
+                <div class="levelNumber">
+                    <h2>04</h2>
+                </div>
+                <div class="levelInfo">
+                    <div class="liTitle">
+                        <p>Interstellar</p>
+                    </div>
+                    <div class="liDesc">
+                        Manage your ration carefully.
+                        Mars is ~55 million kilometres away. One miscalculation sends you spinning into the void forever.
+                    </div>
+                </div>
+                <div class="liStatus">
+                    <button class="level-btn" disabled>LAUNCH</button>
+                    <p>● LOCKED</p>
+                </div>    
+            </div>
+        </div>
+
+        <div class="level locked" data-level="5">
+            <div class="level-content">
+                <div class="levelNumber">
+                    <h2>05</h2>
+                </div>
+                <div class="levelInfo">
+                    <div class="liTitle">
+                        <p>The Red Planet</p>
+                    </div>
+                    <div class="liDesc">
+                        Entry, descent, survival. Decide: can humanity start again here?
+                        Uncover hidden secrets.<br>
+                        This is where your story ends.
+                    </div>
+                </div>
+                <div class="liStatus">
+                    <button class="level-btn" disabled>LAUNCH</button>
+                    <p>● LOCKED</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="about-section reveal" id="about-container">
+        <div class="about-slider">
+            <img class="about-img active" src="astronaut.png">
+            <img class="about-img" src="purpose.png">
+            <img class="about-img" src="research.png">
+            <img class="about-img" src="result.png">
+        </div>
+
+        <div class="carousel-controls">
+            <button id="pause-btn" onclick="togglePause()"><i class="fas fa-pause"></i></button>
+        </div>
+
+        <div class="about-dots">
+            <span class="dot active" onclick="jumpAbout(0)"></span>
+            <span class="dot" onclick="jumpAbout(1)"></span>
+            <span class="dot" onclick="jumpAbout(2)"></span>
+            <span class="dot" onclick="jumpAbout(3)"></span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footerTag">
+            <p><i>Be kind to the one who gives you a place to exist.</i></p>
+        </div>
+        <div class="footerLinks">
+            <div class="navLinks">
+                <p class="flTitle">Navigate</p>
+                <div class="links">
+                    <div class="link">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <a href="">Levels</a>
+                    </div>
+                    <div class="link">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <a href="">About</a>
+                    </div>
+                </div>
+            </div>
+            <div class="socialLinks">
+                <p class="flTitle">Socials</p>
+                <div class="links">
+                    <div class="link">
+                        <i class="fa-brands fa-github"></i>
+                        <a href="">Github</a>
+                    </div>
+                    <div class="link">
+                        <i class="fa-brands fa-linkedin"></i>
+                        <a href="">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pastMissions">
+                <div class="pmSlider">
+                    <img src="mars1.jpg" class="pm-img active">
+                    <img src="mars2.png" class="pm-img">
+                    <img src="mars3.jpg" class="pm-img">
+                </div>
+            </div>
+        </div>
+        <div class="footerEnd">
+            © 2026 • Built by Amogh • All systems operational
+        </div>
+    </div>
+
+    <script>
+        const slides = document.querySelectorAll(".hero-img");
+        let heroIdx = 0;
+
+        function showSlides(index) {
+            slides.forEach((slide, i) => {
+                slide.classList.toggle("active", i === index);
+            });
+        }
+
+        setInterval(() => {
+            heroIdx = (heroIdx + 1) % slides.length;
+            showSlides(heroIdx);
+        }, 4000);
+
+        const fmSlides = document.querySelectorAll(".pm-img");
+        let fmIdx = 0;
+
+        function showFmSlides(index) {
+            fmSlides.forEach((slide, i) => {
+                slide.classList.toggle("active", i === index);
+            });
+        }
+
+        setInterval(() => {
+            fmIdx = (fmIdx + 1) % fmSlides.length;
+            showFmSlides(fmIdx);
+        }, 4000);
+
+        function initLevels() {
+            const unlockedLevel = parseInt(localStorage.getItem("maxLevel")) || 1;
+
+            document.querySelectorAll(".level").forEach(levelCard => {
+                const level = parseInt(levelCard.dataset.level);
+                const btn = levelCard.querySelector("button");
+                const statusText = levelCard.querySelector(".liStatus p");
+
+                if (level <= unlockedLevel) {
+                    levelCard.classList.remove("locked");
+                    btn.textContent = "LAUNCH";
+                    btn.disabled = false;
+                    btn.onclick = () => startLevel(level);
+                    if(statusText) statusText.textContent = "● UNLOCKED";
+                } else {
+                    levelCard.classList.add("locked");
+                    btn.textContent = "LOCKED";
+                    btn.disabled = true;
+                    btn.onclick = null;
+                    if(statusText) statusText.textContent = "● LOCKED";
+                }
+            });
+        }
+
+        function startLevel(level) {
+            document.body.style.transition = "opacity 0.5s";
+            document.body.style.opacity = "0";
+
+            setTimeout(() => {
+                // If it's Level 1, show the story intro first
+                if (level === 1) {
+                    window.location.href = `intro.html`;
+                } else {
+                    // If it's Level 2 or higher, go straight to that level's file
+                    window.location.href = `level${level}.html`;
+                }
+            }, 500);
+        }
+
+        let aIdx = 0;
+        let isPaused = false;
+        let aboutInterval;
+
+        const aSlides = document.querySelectorAll(".about-img");
+        const aDots = document.querySelectorAll(".dot");
+        const pauseBtn = document.getElementById("pause-btn");
+
+        function startAutoSlide() {
+            aboutInterval = setInterval(() => {
+                if (!isPaused) {
+                    aIdx = (aIdx + 1) % aSlides.length;
+                    showAbout(aIdx);
+                }
+            }, 5000);
+        }
+
+        function showAbout(index) {
+            aSlides.forEach((img, i) => img.classList.toggle("active", i === index));
+            aDots.forEach((dot, i) => dot.classList.toggle("active", i === index));
+            aIdx = index;
+        }
+
+        function jumpAbout(index) {
+            showAbout(index);
+            // Optional: Pause when user manually selects a slide to let them read
+            setPause(true); 
+        }
+
+        function togglePause() {
+            setPause(!isPaused);
+        }
+
+        function setPause(paused) {
+            isPaused = paused;
+            pauseBtn.innerHTML = isPaused ? '<i class="fas fa-play"></i>' : '<i class="fas fa-pause"></i>';
+        }
+
+        // Initialize
+        initLevels();
+        startAutoSlide();
+        
+    </script>
+
+    <script>
+        function revealOnScroll() {
+            const reveals = document.querySelectorAll(".reveal");
+
+            reveals.forEach(el => {
+                const windowHeight = window.innerHeight;
+                const elementTop = el.getBoundingClientRect().top;
+
+                if (elementTop < windowHeight - 100) {
+                    el.classList.add("active");
+                }
+            });
+        }
+
+        window.addEventListener("scroll", revealOnScroll);
+        window.addEventListener("load", revealOnScroll);
+    </script>
+
+    <script>
+        function animateLevels() {
+            const levels = document.querySelectorAll(".level");
+
+            levels.forEach(level => {
+                const rect = level.getBoundingClientRect();
+
+                if (rect.top < window.innerHeight - 80) {
+                    level.classList.add("visible");
+                }
+            });
+        }
+
+        window.addEventListener("scroll", animateLevels);
+        window.addEventListener("load", animateLevels);
+    </script>
+
+
+</body>
+</html>

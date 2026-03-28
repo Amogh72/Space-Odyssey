@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Level 2 — Engineering Bay</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+    :root { --rust:#c0392b; --glow:#ff6b35; --pale:#d4c9b8; --bg:#050303; --teal:#00f2ff; --gold:#f39c12; --green:#2ecc71; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body { background:var(--bg); color:var(--pale); font-family:'Share Tech Mono'; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+
+    /* ── Top banner ── */
+    .elysian-header {
+        padding: clamp(7px,1.5vh,10px);
+        background:var(--rust); color:#000; text-align:center;
+        font-size:clamp(0.5rem,1.8vw,0.7rem); letter-spacing:clamp(1px,0.4vw,3px); font-weight:bold;
+        flex-shrink:0;
+    }
+
+    /* ── Header bar ── */
+    header {
+        padding: clamp(10px,2vh,15px) clamp(14px,3vw,30px);
+        border-bottom:1px solid rgba(255,255,255,0.1);
+        display:flex; justify-content:space-between; align-items:center;
+        background:#000; flex-shrink:0; gap:10px; flex-wrap:wrap;
+        font-size:clamp(0.55rem,1.8vw,0.8rem);
+    }
+    #timer { font-family:'Bebas Neue'; font-size:clamp(1.2rem,4vw,1.8rem); color:var(--rust); }
+
+    /* ── Main 3-column grid ── */
+    main {
+        flex:1;
+        display:grid;
+        grid-template-columns: 280px 1fr 280px;
+        grid-template-rows: 1fr;
+        gap: clamp(10px,2vw,20px);
+        padding: clamp(10px,2vw,20px);
+        min-height:0;
+        overflow:hidden;
+    }
+
+    /* Tablet: parts | assembly stacked, telemetry below */
+    @media (max-width: 900px) {
+        body { overflow-y:auto; }
+        main {
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            overflow:visible;
+            min-height:unset;
+        }
+        .parts-menu { grid-column: 1; grid-row: 1; }
+        .assembly-zone { grid-column: 2; grid-row: 1; min-height: 340px; }
+        .telemetry { grid-column: 1 / -1; grid-row: 2; flex-direction:row; flex-wrap:wrap; gap:12px; border-left:none; border-top:1px solid #222; }
+    }
+
+    /* Mobile: full-width single column */
+    @media (max-width: 540px) {
+        main {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto auto;
+            padding: 10px;
+            gap: 10px;
+        }
+        .parts-menu { grid-column:1; grid-row:1; }
+        .assembly-zone { grid-column:1; grid-row:2; min-height:280px; }
+        .telemetry { grid-column:1; grid-row:3; }
+    }
+
+    /* Landscape phone */
+    @media (max-height:500px) and (orientation:landscape) {
+        body { overflow-y:auto; }
+        main { grid-template-columns: 220px 1fr 220px; overflow:visible; }
+    }
+
+    /* ── Parts menu ── */
+    .parts-menu { display:flex; flex-direction:column; gap:6px; overflow-y:auto; min-height:0; scrollbar-width:thin; scrollbar-color:var(--rust) #000; }
+
+    @media (max-width: 900px) {
+        .parts-menu { max-height:360px; }
+    }
+    @media (max-width: 540px) {
+        .parts-menu { max-height:none; overflow-y:visible; }
+    }
+
+    .section-label {
+        font-size:clamp(0.55rem,1.5vw,0.7rem); color:var(--rust); letter-spacing:2px;
+        border-bottom:1px solid #333; margin-top:8px; padding-bottom:4px; flex-shrink:0;
+    }
+
+    .part-card {
+        background:#0f0a0a; border:1px solid rgba(192,57,43,0.4);
+        padding: clamp(8px,1.5vh,10px) clamp(8px,1.5vw,10px);
+        cursor:grab; transition:0.2s;
+        font-size:clamp(0.65rem,1.8vw,0.8rem);
+        flex-shrink:0;
+        -webkit-tap-highlight-color:transparent;
+        user-select:none;
+    }
+    .part-card:hover { border-color:var(--glow); background:#1a0f0f; }
+    .part-card span { float:right; color:var(--gold); }
+
+    /* Touch tap-to-select style */
+    .part-card.selected { border-color:var(--teal); background:#001a1d; box-shadow:0 0 8px rgba(0,242,255,0.2); }
+
+    .info-file {
+        background:#000; border:1px solid var(--rust); border-top:3px solid var(--rust);
+        padding:clamp(10px,2vw,12px); margin-top:10px;
+        font-size:clamp(0.6rem,1.5vw,0.7rem); color:#888; line-height:1.5;
+        height:clamp(120px,18vh,180px); overflow-y:auto;
+        scrollbar-width:thin; scrollbar-color:var(--rust) #000;
+        flex-shrink:0;
+    }
+    .info-file b { color:var(--gold); display:block; margin-top:5px; }
+
+    /* ── Assembly zone ── */
+    .assembly-zone {
+        background:radial-gradient(circle at center, #1a0f0f 0%, #050303 100%);
+        border:1px solid rgba(192,57,43,0.2);
+        display:flex; flex-direction:column-reverse; align-items:center; justify-content:center;
+        gap: clamp(6px,1.5vh,8px);
+        padding: clamp(12px,2vw,20px);
+        min-height:0;
+    }
+
+    .slot {
+        width: min(280px, 90%);
+        height: clamp(52px,9vh,65px);
+        border:2px dashed #222;
+        display:flex; align-items:center; justify-content:center;
+        font-family:'Bebas Neue'; font-size:clamp(0.85rem,2.5vw,1.1rem);
+        color:#2a2a2a; transition:0.3s;
+        cursor:pointer; /* acts as drop target on touch */
+        text-align:center; padding:0 8px;
+        -webkit-tap-highlight-color:transparent;
+    }
+    .slot.drag-over { border-color:var(--teal); background:rgba(0,242,255,0.05); }
+    .slot.filled { border:1px solid var(--teal); color:var(--teal); background:rgba(0,242,255,0.05); cursor:pointer; }
+    .slot.filled:hover { border-color:var(--rust); background:rgba(192,57,43,0.08); }
+    .slot.tap-target { border-color:var(--glow); background:rgba(255,107,53,0.05); }
+    .slot.filled.tap-target { border-color:var(--glow); background:rgba(255,107,53,0.08); }
+
+    /* ── Telemetry panel ── */
+    .telemetry { background:#0a0a0a; border-left:1px solid #222; padding:clamp(14px,2.5vw,20px); display:flex; flex-direction:column; min-height:0; }
+
+    @media (max-width: 900px) {
+        .telemetry { padding:14px; }
+        .telemetry .stat-box { margin-bottom:0; border-bottom:none; border-right:1px solid #222; padding:0 16px 0 0; }
+        .telemetry .stat-box:last-of-type { border-right:none; }
+    }
+
+    .stat-box { margin-bottom:clamp(12px,2.5vh,20px); border-bottom:1px solid #222; padding-bottom:10px; }
+
+    @media (max-width: 900px) {
+        .stat-box { margin-bottom:0; }
+    }
+
+    .stat-label { font-size:clamp(0.5rem,1.5vw,0.6rem); color:#555; }
+    .stat-val { font-family:'Bebas Neue'; font-size:clamp(1.4rem,4vw,2rem); color:#222; }
+    .stat-val.ok { color:var(--green); }
+
+    #warning-msg { font-size:clamp(0.55rem,1.5vw,0.65rem); color:var(--rust); visibility:hidden; }
+
+    @media (max-width: 900px) {
+        #warning-msg { width:100%; }
+        .btn-ignite { width:100%; }
+    }
+
+    .btn-ignite {
+        margin-top:auto; padding:clamp(14px,3vh,20px);
+        font-family:'Bebas Neue'; font-size:clamp(1.2rem,3.5vw,2rem);
+        background:#111; color:#1a1a1a; border:none; cursor:not-allowed; transition:0.4s;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+    .btn-ignite.ready { background:var(--teal); color:#000; cursor:pointer; box-shadow:0 0 25px rgba(0,242,255,0.3); }
+
+    /* Touch hint banner — shown only on touch devices */
+    #touch-hint {
+        display:none;
+        background:rgba(0,242,255,0.07);
+        border:1px solid rgba(0,242,255,0.2);
+        color:var(--teal);
+        font-size:0.6rem;
+        letter-spacing:0.15em;
+        text-align:center;
+        padding:7px;
+        flex-shrink:0;
+    }
+    @media (pointer:coarse) {
+        #touch-hint { display:block; }
+    }
+
+    /* ── Success overlay ── */
+    .overlay { position:fixed; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; z-index:1000; text-align:center; padding:20px; }
+    #success-screen { background:#000; color:#fff; border:clamp(4px,1vw,10px) solid #fff; padding:clamp(20px,5vw,40px); }
+    #success-screen h1 { font-size:clamp(2.5rem,12vw,5rem); font-family:'Bebas Neue'; letter-spacing:clamp(3px,1.5vw,10px); }
+    #success-screen .class-tag { font-family:'Bebas Neue'; font-size:clamp(1rem,4vw,2rem); color:var(--teal); margin-top:10px; letter-spacing:clamp(2px,1vw,5px); }
+    #success-screen p { font-size:clamp(0.65rem,2vw,0.8rem); opacity:0.6; margin-top:20px; }
+
+    /* scrollbar styles */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:#000; }
+    ::-webkit-scrollbar-thumb { background:var(--rust); }
+    ::-webkit-scrollbar-thumb:hover { background:var(--glow); }
+</style>
+</head>
+<body>
+
+<div class="elysian-header">LEVEL 2 // ASSEMBLY PROTOCOL // CLASSIFIED BUILD</div>
+
+<header>
+    <div id="status-text">[ STATUS ] OFFLINE. SELECT COMPONENTS.</div>
+    <div id="timer">60.00</div>
+</header>
+
+<div id="touch-hint">TAP PART → TAP SLOT TO INSTALL · TAP FILLED SLOT TO REMOVE</div>
+
+<main>
+    <!-- Parts -->
+    <div class="parts-menu">
+        <div class="section-label">PROPULSION</div>
+        <div class="part-card" draggable="true" data-type="engine" data-mass="500"  data-name="ION DRIVE"  ondragstart="drag(event)" onclick="tapSelect(this)">V-8 ION DRIVE  <span>500kg</span></div>
+        <div class="part-card" draggable="true" data-type="engine" data-mass="2000" data-name="NOVA CHEM"  ondragstart="drag(event)" onclick="tapSelect(this)">NOVA CHEMICAL  <span>2000kg</span></div>
+
+        <div class="section-label">FUEL</div>
+        <div class="part-card" draggable="true" data-type="fuel" data-mass="1250" data-name="STD CELL"    ondragstart="drag(event)" onclick="tapSelect(this)">STANDARD CELL  <span>1250kg</span></div>
+        <div class="part-card" draggable="true" data-type="fuel" data-mass="5000" data-name="BRUTUS CELL" ondragstart="drag(event)" onclick="tapSelect(this)">BRUTUS CELL    <span>5000kg</span></div>
+
+        <div class="section-label">CHASSIS</div>
+        <div class="part-card" draggable="true" data-type="hull" data-mass="500"  data-name="LT SCOUT"    ondragstart="drag(event)" onclick="tapSelect(this)">LIGHT SCOUT    <span>500kg</span></div>
+        <div class="part-card" draggable="true" data-type="hull" data-mass="2000" data-name="HEAVY TITAN" ondragstart="drag(event)" onclick="tapSelect(this)">HEAVY TITAN    <span>2000kg</span></div>
+
+        <div class="info-file">
+            <b>[ MANUAL_02 ]</b>
+            Escape velocity requires a precise Mass Ratio of 2.50.
+            <i>Calculation: Total Fuel / (Engine + Hull)</i>
+            <b>STABILITY</b>
+            Ensure the Engine weight is sufficient to stabilize the chosen Chassis.
+        </div>
+    </div>
+
+    <!-- Assembly -->
+    <div class="assembly-zone">
+        <div class="slot" id="slot-hull"   data-accept="hull"   ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="enter(event)" ondragleave="leave(event)" onclick="tapDrop(this)">[ CHASSIS MOUNT ]</div>
+        <div class="slot" id="slot-fuel2"  data-accept="fuel"   ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="enter(event)" ondragleave="leave(event)" onclick="tapDrop(this)">[ FUEL TANK B ]</div>
+        <div class="slot" id="slot-fuel1"  data-accept="fuel"   ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="enter(event)" ondragleave="leave(event)" onclick="tapDrop(this)">[ FUEL TANK A ]</div>
+        <div class="slot" id="slot-engine" data-accept="engine" ondrop="drop(event)" ondragover="allowDrop(event)" ondragenter="enter(event)" ondragleave="leave(event)" onclick="tapDrop(this)">[ ENGINE CORE ]</div>
+    </div>
+
+    <!-- Telemetry -->
+    <div class="telemetry">
+        <div class="stat-box">
+            <div class="stat-label">CURRENT MASS RATIO</div>
+            <div id="ratio-display" class="stat-val">0.00</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-label">STABILITY STATUS</div>
+            <div id="stab-display" class="stat-val" style="font-size:clamp(0.85rem,2.5vw,1.2rem);">CALIBRATING...</div>
+        </div>
+
+        <div id="warning-msg">[ ERROR ] RATIO IMBALANCE DETECTED</div>
+
+        <button id="ignite-btn" class="btn-ignite" disabled onclick="ignite()">IGNITION</button>
+    </div>
+</main>
+
+<!-- Success -->
+<div id="success-screen" class="overlay">
+    <h1>ORBIT ATTAINED</h1>
+    <div class="class-tag" id="reveal-tag">-- CLASS CONFIRMED --</div>
+    <p>TRANSFERRED TO FLIGHT CONTROL...</p>
+</div>
+
+<script>
+let ship = { engine:0, hull:0, fuel1:0, fuel2:0 };
+let timeLeft = 60.00;
+let timerActive = false;
+let selectedCard = null; // for touch tap-to-place
+
+/* ── Drag & Drop (mouse) ── */
+function drag(ev) {
+    ev.dataTransfer.setData("type", ev.target.dataset.type);
+    ev.dataTransfer.setData("mass", ev.target.dataset.mass);
+    ev.dataTransfer.setData("name", ev.target.dataset.name);
+}
+function allowDrop(ev) { ev.preventDefault(); }
+function enter(ev) { ev.currentTarget.classList.add('drag-over'); }
+function leave(ev) { ev.currentTarget.classList.remove('drag-over'); }
+
+function drop(ev) {
+    ev.preventDefault();
+    const slot = ev.currentTarget;
+    slot.classList.remove('drag-over');
+    const type = ev.dataTransfer.getData("type");
+    const mass = parseInt(ev.dataTransfer.getData("mass"));
+    const name = ev.dataTransfer.getData("name");
+    installPart(slot, type, mass, name);
+}
+
+/* ── Tap to select + tap to place (touch) ── */
+function tapSelect(card) {
+    document.querySelectorAll('.part-card').forEach(c => c.classList.remove('selected'));
+    if (selectedCard === card) { selectedCard = null; clearSlotHighlights(); return; }
+    selectedCard = card;
+    card.classList.add('selected');
+    // Highlight ALL matching slots (including already-filled ones — replacement allowed)
+    document.querySelectorAll('.slot').forEach(s => {
+        s.classList.toggle('tap-target', s.dataset.accept === card.dataset.type);
+    });
+}
+
+function tapDrop(slot) {
+    if (!selectedCard) {
+        // No card selected — tapping a filled slot ejects it
+        if (slot.classList.contains('filled')) ejectSlot(slot);
+        return;
+    }
+    const type = selectedCard.dataset.type;
+    if (slot.dataset.accept !== type) return;
+
+    installPart(slot, type, parseInt(selectedCard.dataset.mass), selectedCard.dataset.name);
+    selectedCard.classList.remove('selected');
+    selectedCard = null;
+    clearSlotHighlights();
+}
+
+function ejectSlot(slot) {
+    const label = { 'slot-engine':'[ ENGINE CORE ]', 'slot-hull':'[ CHASSIS MOUNT ]', 'slot-fuel1':'[ FUEL TANK A ]', 'slot-fuel2':'[ FUEL TANK B ]' };
+    slot.innerText = label[slot.id] || '[ EMPTY ]';
+    slot.classList.remove('filled', 'tap-target');
+
+    if (slot.id === 'slot-engine') ship.engine = 0;
+    if (slot.id === 'slot-hull')   ship.hull   = 0;
+    if (slot.id === 'slot-fuel1')  ship.fuel1  = 0;
+    if (slot.id === 'slot-fuel2')  ship.fuel2  = 0;
+    calculate();
+}
+
+function clearSlotHighlights() {
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('tap-target'));
+}
+
+function installPart(slot, type, mass, name) {
+    if (!timerActive) startTimer();
+
+    slot.innerText = name;
+    slot.classList.add('filled');
+    slot.classList.remove('tap-target');
+
+    if (slot.id === 'slot-engine') ship.engine = mass;
+    if (slot.id === 'slot-hull')   ship.hull   = mass;
+    if (slot.id === 'slot-fuel1')  ship.fuel1  = mass;
+    if (slot.id === 'slot-fuel2')  ship.fuel2  = mass;
+
+    calculate();
+}
+
+function calculate() {
+    const dry   = ship.engine + ship.hull;
+    const fuel  = ship.fuel1  + ship.fuel2;
+    const ratio = dry > 0 ? (fuel / dry) : 0;
+    const isFullyAssembled = ship.engine > 0 && ship.hull > 0 && ship.fuel1 > 0 && ship.fuel2 > 0;
+
+    const rDisp = document.getElementById('ratio-display');
+    rDisp.innerText = ratio.toFixed(2);
+
+    const btn  = document.getElementById('ignite-btn');
+    const warn = document.getElementById('warning-msg');
+    const stab = document.getElementById('stab-display');
+
+    if (ratio === 2.5 && isFullyAssembled) {
+        rDisp.classList.add('ok');
+        warn.style.visibility = 'hidden';
+        stab.innerText = "STABLE";
+        stab.style.color = "var(--green)";
+        btn.disabled = false;
+        btn.classList.add('ready');
+        document.getElementById('status-text').innerText = "[ STATUS ] CALIBRATION COMPLETE.";
+    } else {
+        rDisp.classList.remove('ok');
+        stab.innerText = isFullyAssembled ? "IMBALANCED" : "INCOMPLETE";
+        stab.style.color = "var(--rust)";
+        btn.disabled = true;
+        btn.classList.remove('ready');
+        warn.style.visibility = (ratio > 0 && ratio !== 2.5) ? 'visible' : 'hidden';
+        warn.innerText = "[ ERROR ] RATIO IMBALANCE";
+    }
+}
+
+function startTimer() {
+    timerActive = true;
+    document.getElementById('status-text').innerText = "[ STATUS ] ASSEMBLY IN PROGRESS...";
+    const t = setInterval(() => {
+        timeLeft -= 0.01;
+        document.getElementById('timer').innerText = timeLeft.toFixed(2);
+        if (timeLeft <= 0) { clearInterval(t); location.reload(); }
+    }, 10);
+}
+
+function ignite() {
+    const finalClass = ship.engine === 500 ? "GHOST RUNNER" : "TITAN DREADNOUGHT";
+    localStorage.setItem("shipClass", finalClass);
+    localStorage.setItem("maxLevel", 3);
+    document.getElementById('reveal-tag').innerText = finalClass + " CONFIRMED";
+    document.getElementById('success-screen').style.display = 'flex';
+    setTimeout(() => { window.location.href = "index.html"; }, 3500);
+}
+</script>
+</body>
+</html>

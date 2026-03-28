@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Level 3 — The Ascent</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+    :root { --rust:#c0392b; --glow:#ff6b35; --pale:#d4c9b8; --bg:#050303; --teal:#00f2ff; --red:#ff4d4d; --gold:#f39c12; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body { background:var(--bg); color:var(--pale); font-family:'Share Tech Mono'; min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden; }
+
+    /* ── Top banner ── */
+    .elysian-header {
+        padding: clamp(7px,1.5vh,10px);
+        background:var(--rust); color:#000; text-align:center;
+        font-size:clamp(0.5rem,1.8vw,0.7rem); letter-spacing:clamp(1px,0.4vw,3px); font-weight:bold;
+        flex-shrink:0;
+    }
+
+    /* ── Header bar ── */
+    header {
+        padding: clamp(10px,2vh,15px) clamp(14px,3vw,30px);
+        border-bottom:1px solid #222;
+        display:flex; justify-content:space-between; align-items:center;
+        background:#000; flex-shrink:0; gap:10px; flex-wrap:wrap;
+        font-size:clamp(0.55rem,1.8vw,0.8rem);
+    }
+    #timer { font-family:'Bebas Neue'; font-size:clamp(1.4rem,5vw,2.5rem); color:var(--red); }
+
+    /* ── Main 2-column layout ── */
+    main {
+        flex:1;
+        display:grid;
+        grid-template-columns: 380px 1fr;
+        gap: clamp(10px,2vw,20px);
+        padding: clamp(10px,2vw,20px);
+        overflow:hidden;
+        min-height:0;
+    }
+
+    /* Tablet: stack sidebar above flight deck */
+    @media (max-width: 820px) {
+        body { overflow-y:auto; }
+        main {
+            grid-template-columns: 1fr;
+            grid-template-rows: auto auto;
+            overflow:visible;
+            min-height:unset;
+        }
+        .flight-deck {
+            min-height: clamp(220px, 35vh, 320px);
+        }
+    }
+
+    /* Landscape phone */
+    @media (max-height:500px) and (orientation:landscape) {
+        body { overflow-y:auto; }
+        main {
+            grid-template-columns: 300px 1fr;
+            overflow:visible;
+        }
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+        background:#0a0a0a; border:1px solid #222;
+        padding: clamp(14px,2.5vw,20px);
+        display:flex; flex-direction:column; gap: clamp(8px,1.5vh,12px);
+        overflow-y:auto; min-height:0;
+        scrollbar-width:thin; scrollbar-color:var(--rust) #000;
+    }
+
+    @media (max-width: 820px) {
+        .sidebar { overflow-y:visible; max-height:none; }
+    }
+
+    .path-intel {
+        font-size:clamp(0.6rem,1.8vw,0.65rem); line-height:1.6; color:#aaa;
+        background:#111; padding: clamp(10px,2vw,15px);
+        border-left:2px solid var(--teal); margin-bottom:4px;
+    }
+    .path-intel b { color:var(--teal); text-transform:uppercase; }
+
+    .supply-card {
+        background:#111; border:1px solid #333;
+        padding: clamp(10px,2vw,12px);
+    }
+    .supply-card h4 {
+        font-size:clamp(0.58rem,1.6vw,0.65rem); color:var(--gold);
+        margin-bottom:5px; text-transform:uppercase; letter-spacing:1px;
+    }
+
+    input[type=range] { width:100%; accent-color:var(--teal); cursor:pointer; margin-top:5px; height:20px; }
+    input[type=range]:disabled { accent-color:#444; cursor:not-allowed; }
+
+    .range-labels {
+        display:flex; justify-content:space-between;
+        font-size:clamp(0.5rem,1.4vw,0.6rem); margin-top:5px;
+    }
+
+    .check-item {
+        display:flex; align-items:center; justify-content:space-between;
+        padding: clamp(5px,1vh,6px) 0; border-bottom:1px solid #222;
+    }
+    .check-item label { font-size:clamp(0.58rem,1.6vw,0.65rem); color:#888; }
+    .check-item b { color:var(--teal); font-size:clamp(0.58rem,1.6vw,0.65rem); }
+
+    .stats-grid { display:grid; grid-template-columns:1fr 1fr; gap: clamp(6px,1.5vw,10px); }
+    .stat-mini { background:#000; padding: clamp(8px,1.5vw,10px); border:1px solid #222; text-align:center; }
+    .stat-mini label { display:block; font-size:clamp(0.45rem,1.2vw,0.5rem); color:#555; margin-bottom:3px; }
+    .stat-mini span { font-family:'Bebas Neue'; font-size:clamp(1rem,3.5vw,1.3rem); color:var(--pale); }
+
+    .btn-launch {
+        padding: clamp(14px,2.5vh,20px) clamp(20px,4vw,80px);
+        font-family:'Bebas Neue'; font-size:clamp(1.2rem,3.5vw,2rem);
+        background:var(--teal); color:#000; border:none; cursor:pointer;
+        transition:0.2s; width:100%;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+    .btn-launch:disabled { background:#222; color:#444; cursor:not-allowed; }
+    .btn-launch.burning { background:var(--red); color:#000; }
+
+    #warn-box {
+        font-size:clamp(0.55rem,1.5vw,0.6rem); color:var(--red);
+        text-align:center; min-height:14px; line-height:1.5;
+    }
+
+    /* ── Flight deck ── */
+    .flight-deck {
+        background:radial-gradient(circle at center, #111 0%, #000 100%);
+        border:1px solid #222;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        padding: clamp(16px,3vw,30px);
+        min-height:0;
+    }
+
+    .v-label { font-size:clamp(0.6rem,2vw,0.8rem); color:#444; letter-spacing:5px; }
+
+    .v-num {
+        font-family:'Bebas Neue';
+        font-size:clamp(4rem,14vw,8rem);
+        color:var(--pale);
+        text-shadow:0 0 25px rgba(0,242,255,0.15);
+        line-height:1;
+        margin: clamp(8px,2vh,16px) 0;
+    }
+
+    .gauge-wrap { width:min(80%, 500px); position:relative; margin: clamp(10px,2vh,25px) 0; }
+    .gauge-box2 { width:100%; height:clamp(10px,2vh,14px); background:#111; border:1px solid #333; position:relative; overflow:hidden; }
+    #v-fill2 { height:100%; width:0%; background:var(--teal); transition:none; }
+
+
+
+    /* ── Result overlay ── */
+    .overlay {
+        position:fixed; inset:0; background:rgba(0,0,0,0.98);
+        display:none; flex-direction:column; align-items:center; justify-content:center;
+        z-index:1000; text-align:center; padding: clamp(20px,5vw,40px);
+    }
+    .overlay h1 { font-family:'Bebas Neue'; font-size:clamp(2rem,8vw,4rem); margin-bottom:10px; }
+    .overlay p { margin:20px 0; color:#888; max-width:500px; line-height:1.7; font-size:clamp(0.75rem,2vw,0.9rem); }
+    .overlay button {
+        border:none; padding: clamp(12px,2vh,15px) clamp(30px,6vw,50px);
+        font-family:'Bebas Neue'; font-size:clamp(1.1rem,3.5vw,1.6rem);
+        cursor:pointer; touch-action:manipulation;
+        -webkit-tap-highlight-color:transparent;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:#000; }
+    ::-webkit-scrollbar-thumb { background:var(--rust); }
+    ::-webkit-scrollbar-thumb:hover { background:var(--glow); }
+</style>
+</head>
+<body onload="init()">
+
+<div class="elysian-header">LEVEL 3 // ASCENT PROTOCOL // ORBITAL INSERTION</div>
+
+<header>
+    <div id="ship-id">[ IDENTIFYING... ]</div>
+    <div id="timer">30.0s</div>
+</header>
+
+<main>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div id="intel-box" class="path-intel"></div>
+
+        <div class="supply-card">
+            <h4>Life Support Rations</h4>
+            <input type="range" id="life-slider" min="50" max="3000" step="10" value="200" oninput="calculatePhysics()">
+            <div class="range-labels">
+                <span>MIN LOAD</span><span id="life-val">200kg</span><span>MAX 3000kg</span>
+            </div>
+        </div>
+
+        <div class="supply-card">
+            <h4>Mandatory Elements</h4>
+            <div class="check-item"><label>ENCRYPTED SYSTEM LOG</label><b>10kg</b></div>
+            <div class="check-item"><label>RAD-SHIELDING ARRAY</label><b>35kg</b></div>
+            <div class="check-item"><label>EMERGENCY MED-KIT</label><b>25kg</b></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-mini">
+                <label>NET PAYLOAD</label>
+                <span id="total-weight">270 KG</span>
+            </div>
+            <div class="stat-mini">
+                <label>EST. SURVIVAL</label>
+                <span id="survival-days" style="color:var(--gold);">121 DAYS</span>
+            </div>
+        </div>
+
+        <button id="launch-btn" class="btn-launch" onclick="handleEngine()">INITIATE BURN</button>
+
+        <div id="warn-box"></div>
+    </div>
+
+    <!-- Flight deck -->
+    <div class="flight-deck">
+        <div class="v-label">VELOCITY KM/S</div>
+        <div class="v-num" id="v-current">0.0</div>
+        <div class="gauge-wrap">
+            <div class="gauge-box2">
+                <div id="v-fill2"></div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<!-- Result overlay -->
+<div id="result-overlay" class="overlay">
+    <h1 id="overlay-title">STATUS</h1>
+    <p id="overlay-desc"></p>
+    <button id="overlay-btn" onclick="resetToLvl2()">RETURN TO HANGAR</button>
+</div>
+
+<script>
+    const shipClass = localStorage.getItem("shipClass") || "GHOST RUNNER";
+    const FIXED_MASS = 70;
+    const BURN_TIME = 30.0;
+    let velocity = 0;
+    let timeRemaining = BURN_TIME;
+    let engineActive = false;
+    let burnInterval = null;
+
+    function init() {
+        document.getElementById('ship-id').innerText = '[ CLASS: ' + shipClass + ' ]';
+        document.getElementById('timer').innerText = BURN_TIME.toFixed(1) + 's';
+
+        const intel = document.getElementById('intel-box');
+        if (shipClass === "GHOST RUNNER") {
+            intel.innerHTML = "<b>Standard Injection:</b> Ration load is light — survival days are short.";
+        } else {
+            intel.innerHTML = "<b>Titan Path:</b> A stray orbit survives — high mass means many survival days.";
+        }
+        calculatePhysics();
+    }
+
+    function calculatePhysics() {
+        const lifeWeight = parseInt(document.getElementById('life-slider').value);
+        const total = lifeWeight + FIXED_MASS;
+        const days = Math.floor(total * 0.45);
+
+        document.getElementById('life-val').innerText = lifeWeight + 'kg';
+        document.getElementById('total-weight').innerText = total + ' KG';
+        document.getElementById('survival-days').innerText = days + ' DAYS';
+
+        const btn = document.getElementById('launch-btn');
+        const warn = document.getElementById('warn-box');
+
+        if (shipClass === "GHOST RUNNER" && total > 500) {
+            btn.disabled = true;
+            warn.innerText = 'PAYLOAD TOO HEAVY — ENGINE CANNOT ACHIEVE ESCAPE VELOCITY';
+        } else {
+            btn.disabled = false;
+            warn.innerText = '';
+        }
+    }
+
+    function handleEngine() {
+        if (!engineActive) startBurn();
+        else stopBurn();
+    }
+
+    function startBurn() {
+        engineActive = true;
+        velocity = 0;
+        timeRemaining = BURN_TIME;
+        document.getElementById('v-current').innerText = '0.0';
+        document.getElementById('v-fill2').style.width = '0%';
+
+        const btn = document.getElementById('launch-btn');
+        btn.innerHTML = 'CUT ENGINE';
+        btn.className = 'btn-launch burning';
+        document.getElementById('life-slider').disabled = true;
+
+        const totalW = parseInt(document.getElementById('total-weight').innerText);
+        const TICK = 0.1;
+        let accel, penalty;
+        if (shipClass === "GHOST RUNNER") {
+            accel = 0.95;
+            penalty = totalW / 200000;
+        } else {
+            accel = 0.398;
+            penalty = totalW / 50000;
+        }
+        const netPerTick = (accel - penalty) * TICK;
+
+        burnInterval = setInterval(() => {
+            timeRemaining = Math.max(0, timeRemaining - TICK);
+            document.getElementById('timer').innerText = timeRemaining.toFixed(1) + 's';
+
+            velocity += netPerTick;
+            if (velocity < 0) velocity = 0;
+            if (shipClass !== "GHOST RUNNER" && velocity > 10.9) velocity = 10.9;
+
+            document.getElementById('v-current').innerText = velocity.toFixed(1);
+            document.getElementById('v-fill2').style.width = Math.min((velocity / 12 * 100), 100) + '%';
+
+            if (timeRemaining <= 0) stopBurn();
+        }, 100);
+    }
+
+    function stopBurn() {
+        if (!engineActive && velocity === 0) return;
+        engineActive = false;
+        clearInterval(burnInterval);
+        burnInterval = null;
+        validateOrbit();
+    }
+
+    function validateOrbit() {
+        const overlay = document.getElementById('result-overlay');
+        const title = document.getElementById('overlay-title');
+        const desc = document.getElementById('overlay-desc');
+        const btn = document.getElementById('overlay-btn');
+        overlay.style.display = 'flex';
+        const finalV = parseFloat(velocity.toFixed(2));
+        const days = document.getElementById('survival-days').innerText;
+
+        if (finalV < 10.4) {
+            title.innerText = 'CAUGHT';
+            title.style.color = 'var(--red)';
+            desc.innerHTML = 'Velocity: <b>' + finalV + ' km/s</b>.<br><br>Not fast enough to clear the patrol zone. Elysian corp locked your thermal signature before you escaped.';
+            btn.innerText = 'TRY AGAIN';
+            btn.style.background = 'var(--red)';
+            btn.style.color = '#000';
+            btn.onclick = resetToLvl2;
+        } else if (shipClass === "GHOST RUNNER") {
+            if (finalV >= 11.2 && finalV <= 11.4) {
+                title.innerText = 'INJECTION SUCCESSFUL';
+                title.style.color = 'var(--teal)';
+                localStorage.setItem('survivalDays', days);
+                desc.innerHTML = 'Velocity: <b>' + finalV + ' km/s</b>.<br><br>Clean trajectory lock. Direct path to Mars established.';
+                btn.innerText = 'PROCEED TO MARS';
+                btn.style.background = 'var(--teal)';
+                btn.style.color = '#000';
+                btn.onclick = () => { localStorage.setItem('maxLevel', 4); window.location.href = 'index.html'; };
+            } else if (finalV > 11.4) {
+                title.innerText = 'ORBIT MISSED';
+                title.style.color = 'var(--red)';
+                desc.innerHTML = 'Velocity: <b>' + finalV + ' km/s</b>.<br><br>You held the burn too long. Ghost Runner overshot the insertion window — too fast, wrong angle. The ship is lost in the dark.';
+                btn.innerText = 'TRY AGAIN';
+                btn.style.background = 'var(--red)';
+                btn.style.color = '#000';
+                btn.onclick = resetToLvl2;
+            } else {
+                title.innerText = 'NO PATH TO MARS';
+                title.style.color = 'var(--red)';
+                desc.innerHTML = 'Velocity: <b>' + finalV + ' km/s</b>.<br><br>You cleared the corp patrols but the velocity is too low to reach Mars orbit. Ghost Runner carries too few supplies for a recovery burn. Death in open space.';
+                btn.innerText = 'TRY AGAIN';
+                btn.style.background = 'var(--red)';
+                btn.style.color = '#000';
+                btn.onclick = resetToLvl2;
+            }
+        } else {
+            if (finalV >= 10.4 && finalV <= 10.9) {
+                title.innerText = 'STRAY ORBIT';
+                title.style.color = 'var(--gold)';
+                localStorage.setItem('survivalDays', days);
+                desc.innerHTML = 'Velocity: <b>' + finalV + ' km/s</b>.<br><br>You missed the primary insertion window — but your massive supply load sustains a long corrective burn. Slow path to Mars begins.';
+                btn.innerText = 'START RECOVERY';
+                btn.style.background = 'var(--gold)';
+                btn.style.color = '#000';
+                btn.onclick = () => { localStorage.setItem('maxLevel', 4); window.location.href = 'index.html'; };
+            }
+        }
+    }
+
+    function resetToLvl2() { localStorage.setItem('maxLevel', 2); window.location.href = 'level2.html'; }
+</script>
+</body>
+</html>

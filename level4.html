@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Level 4 — The Long Dark</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --rust:#c0392b; --pale:#d4c9b8; --bg:#050303;
+        --teal:#00f2ff; --red:#ff4d4d; --gold:#f39c12; --dim:#1a1a1a;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; }
+    body {
+        background:var(--bg); color:var(--pale); font-family:'Share Tech Mono';
+        min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden;
+    }
+
+    /* ── HUD top bar ── */
+    .top-bar {
+        background:#000; border-bottom:1px solid #1a1a1a;
+        padding: clamp(8px,1.5vh,10px) clamp(12px,3vw,25px);
+        display:flex; justify-content:space-between; align-items:center;
+        flex-shrink:0; flex-wrap:wrap; gap: clamp(8px,2vw,16px);
+    }
+    .top-bar .hud-cell { min-width:0; }
+    .top-bar .label { font-size:clamp(0.45rem,1.3vw,0.55rem); color:#444; letter-spacing:2px; white-space:nowrap; }
+    .top-bar .val { font-family:'Bebas Neue'; font-size:clamp(0.9rem,3vw,1.4rem); white-space:nowrap; }
+
+    /* On very small screens hide vessel label, keep numbers */
+    @media (max-width: 400px) {
+        .top-bar { gap:6px; padding:8px 10px; }
+        .hud-vessel { display:none; }
+    }
+
+    /* ── Main screen ── */
+    #main-screen {
+        flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        padding: clamp(14px,3vw,20px); position:relative; overflow:hidden;
+    }
+
+    /* stars */
+    .stars { position:absolute; inset:0; pointer-events:none; }
+    .star { position:absolute; background:#fff; border-radius:50%; animation:twinkle 3s infinite; }
+    @keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:0.8} }
+
+    /* phase title */
+    .phase-label { font-size:clamp(0.5rem,1.5vw,0.6rem); color:#444; letter-spacing:4px; margin-bottom:6px; text-align:center; }
+    .phase-title { font-family:'Bebas Neue'; font-size:clamp(2rem,7vw,3.5rem); color:var(--pale); margin-bottom:4px; text-align:center; line-height:1; }
+    .phase-sub { font-size:clamp(0.5rem,1.5vw,0.65rem); color:#555; letter-spacing:2px; margin-bottom: clamp(16px,3vh,30px); text-align:center; }
+
+    /* journey bar */
+    .journey-wrap { width:min(600px,92%); margin-bottom: clamp(14px,2.5vh,30px); }
+    .journey-bar { height:6px; background:#111; border:1px solid #222; position:relative; overflow:visible; }
+    #j-fill { height:100%; background:var(--teal); transition:width 0.8s ease; }
+    .milestone-dot { position:absolute; top:-5px; width:4px; height:16px; background:#333; }
+    .milestone-dot.passed { background:var(--teal); }
+    .journey-labels { display:flex; justify-content:space-between; font-size:clamp(0.42rem,1.2vw,0.5rem); color:#333; margin-top:6px; }
+
+    /* narrative log */
+    .log-box {
+        width:min(600px,92%); background:#0a0a0a; border:1px solid #1a1a1a;
+        padding: clamp(14px,3vw,20px); margin-bottom: clamp(14px,2.5vh,25px);
+        max-height: clamp(130px,22vh,220px); overflow-y:auto;
+        scrollbar-width:thin; scrollbar-color:var(--rust) #000;
+    }
+    #log-text { font-size:clamp(0.62rem,1.8vw,0.7rem); line-height:1.8; color:#888; }
+    #log-text b { color:var(--pale); }
+    #log-text span.danger { color:var(--red); }
+    #log-text span.good   { color:var(--teal); }
+    #log-text span.warn   { color:var(--gold); }
+
+    /* choice buttons */
+    #choice-area {
+        display:flex; gap: clamp(8px,2vw,12px); flex-wrap:wrap;
+        justify-content:center; width:min(600px,92%);
+    }
+    .choice-btn {
+        flex:1; min-width: clamp(140px,38vw,180px);
+        padding: clamp(10px,2vh,14px) clamp(12px,2.5vw,20px);
+        font-family:'Share Tech Mono'; font-size:clamp(0.58rem,1.6vw,0.65rem);
+        background:#0a0a0a; border:1px solid #333; color:var(--pale);
+        cursor:pointer; text-align:left; line-height:1.6; transition:border-color 0.2s, background 0.2s;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+    .choice-btn:hover, .choice-btn:active { border-color:var(--teal); background:#111; }
+    .choice-btn .c-label { color:var(--teal); font-size:clamp(0.48rem,1.3vw,0.55rem); letter-spacing:2px; margin-bottom:4px; display:block; }
+    .choice-btn .c-cost  { color:#555; font-size:clamp(0.48rem,1.3vw,0.55rem); margin-top:4px; display:block; }
+    .choice-btn:disabled { border-color:#1a1a1a; color:#333; cursor:not-allowed; }
+    .choice-btn:disabled .c-label { color:#333; }
+
+    /* continue btn */
+    #continue-btn {
+        padding: clamp(12px,2vh,14px) clamp(30px,6vw,50px);
+        font-family:'Bebas Neue'; font-size:clamp(1.1rem,3.5vw,1.6rem);
+        background:var(--teal); color:#000; border:none; cursor:pointer; display:none;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+        margin-top: clamp(8px,1.5vh,12px);
+    }
+    #continue-btn:hover { opacity:0.85; }
+
+    /* ── Death overlays ── */
+    .overlay {
+        position:fixed; inset:0; background:rgba(0,0,0,0.97);
+        display:none; flex-direction:column; align-items:center; justify-content:center;
+        z-index:100; text-align:center; padding: clamp(20px,5vw,40px);
+    }
+    .overlay h1 { font-family:'Bebas Neue'; font-size:clamp(2.5rem,8vw,4rem); margin-bottom:15px; }
+    .overlay p { color:#666; max-width:480px; line-height:1.8; font-size:clamp(0.65rem,2vw,0.75rem); margin-bottom:15px; }
+    .overlay button {
+        padding: clamp(12px,2vh,14px) clamp(30px,6vw,50px);
+        font-family:'Bebas Neue'; font-size:clamp(1.1rem,3.5vw,1.6rem);
+        border:none; cursor:pointer;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+
+    /* ── Dr. Mann log overlay ── */
+    #log-overlay {
+        position:fixed; inset:0; background:rgba(0,0,0,0.97);
+        display:none; flex-direction:column; align-items:center; justify-content:center;
+        z-index:150; padding: clamp(16px,4vw,40px);
+    }
+    .log-paper {
+        width:min(640px,92%); background:#080808; border:1px solid #2a2a2a;
+        border-top:3px solid var(--gold); padding: clamp(20px,4vw,35px);
+        max-height:80vh; overflow-y:auto;
+        scrollbar-width:thin; scrollbar-color:var(--gold) #000;
+    }
+    .log-header { font-size:clamp(0.48rem,1.4vw,0.55rem); color:#444; letter-spacing:3px; margin-bottom:5px; }
+    .log-title { font-family:'Bebas Neue'; font-size:clamp(1.2rem,4vw,2rem); color:var(--gold); margin-bottom:20px; }
+    .log-body { font-size:clamp(0.62rem,1.8vw,0.7rem); line-height:2; color:#888; }
+    .log-body p { margin-bottom:14px; }
+    .log-body .sig { color:#555; font-size:clamp(0.55rem,1.5vw,0.6rem); margin-top:20px; }
+    .log-body .warning { color:var(--gold); font-style:italic; }
+    #close-log-btn {
+        margin-top:25px; padding: clamp(10px,2vh,12px) clamp(24px,5vw,40px);
+        font-family:'Bebas Neue'; font-size:clamp(1rem,3vw,1.4rem);
+        background:transparent; border:1px solid #333; color:var(--pale); cursor:pointer;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+    #close-log-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+    /* ── Health bar ── */
+    .health-wrap { display:flex; align-items:center; gap:8px; }
+    #health-bar { width: clamp(50px,8vw,80px); height:8px; background:#111; border:1px solid #222; }
+    #health-fill { height:100%; background:var(--teal); transition:width 0.3s; }
+
+    /* ── Combat screen ── */
+    #combat-screen {
+        position:fixed; inset:0; background:#000;
+        display:none; flex-direction:column; align-items:center; justify-content:center;
+        z-index:200; overflow:hidden; padding: clamp(16px,4vw,30px);
+    }
+    .combat-msg {
+        font-family:'Bebas Neue'; font-size:clamp(1.4rem,5vw,2.5rem);
+        color:var(--red); letter-spacing:4px; margin-bottom:8px; text-align:center;
+    }
+    .combat-sub {
+        font-size:clamp(0.55rem,1.8vw,0.65rem); color:#555;
+        letter-spacing:2px; margin-bottom: clamp(20px,4vh,40px); text-align:center;
+    }
+    #dodge-arena {
+        width: min(400px, 92vw);
+        height: clamp(140px,28vh,200px);
+        border:1px solid #1a1a1a; position:relative;
+        background:#050303; overflow:hidden; margin-bottom:20px; cursor:crosshair;
+        touch-action:none;
+    }
+    #player-ship {
+        position:absolute; width:24px; height:24px;
+        bottom: clamp(10px,3vh,20px); left:50%;
+        transform:translateX(-50%); font-size:20px;
+        transition:left 0.05s; pointer-events:none;
+    }
+    #laser {
+        position:absolute; width:3px; background:var(--red);
+        top:0; bottom:0; left:50%;
+        box-shadow:0 0 8px var(--red); display:none;
+    }
+    #hit-flash { position:absolute; inset:0; background:var(--red); opacity:0; pointer-events:none; }
+    .combat-hint { font-size:clamp(0.5rem,1.5vw,0.6rem); color:#444; letter-spacing:2px; text-align:center; }
+    #heal-btn {
+        padding: clamp(12px,2vh,14px) clamp(30px,6vw,50px);
+        font-family:'Bebas Neue'; font-size:clamp(1.1rem,3.5vw,1.6rem);
+        background:var(--teal); color:#000; border:none; cursor:pointer;
+        display:none; margin-top:20px;
+        -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+    }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width:6px; }
+    ::-webkit-scrollbar-track { background:#000; }
+    ::-webkit-scrollbar-thumb { background:var(--rust); }
+    ::-webkit-scrollbar-thumb:hover { background:var(--gold); }
+
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-8px)} 40%{transform:translateX(8px)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+    .shake { animation:shake 0.4s ease; }
+
+    /* Landscape phone: reduce vertical margins */
+    @media (max-height:500px) and (orientation:landscape) {
+        .log-box { max-height:28vh; }
+        .phase-title { font-size:clamp(1.4rem,5vw,2rem); }
+        #main-screen { justify-content:flex-start; padding-top:8px; }
+        .journey-wrap { margin-bottom:10px; }
+    }
+</style>
+</head>
+<body>
+
+<!-- HUD -->
+<div class="top-bar">
+    <div class="hud-cell hud-vessel">
+        <div class="label">VESSEL</div>
+        <div class="val" id="hud-ship" style="color:var(--teal);">—</div>
+    </div>
+    <div class="hud-cell" style="text-align:center;">
+        <div class="label">MISSION DAY</div>
+        <div class="val" id="hud-day">001</div>
+    </div>
+    <div class="hud-cell" style="text-align:center;">
+        <div class="label">RATIONS LEFT</div>
+        <div class="val" id="hud-rations" style="color:var(--gold);">— DAYS</div>
+    </div>
+    <div class="hud-cell" style="text-align:right;">
+        <div class="label">HULL INTEGRITY</div>
+        <div class="health-wrap" style="justify-content:flex-end;">
+            <div id="health-bar"><div id="health-fill" style="width:100%;"></div></div>
+            <div class="val" id="hud-hp">100%</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main -->
+<div id="main-screen">
+    <div class="stars" id="starfield"></div>
+    <div class="phase-label" id="phase-label">PHASE 1</div>
+    <div class="phase-title" id="phase-title">DEPARTURE</div>
+    <div class="phase-sub" id="phase-sub">LEAVING EARTH ORBIT</div>
+    <div class="journey-wrap">
+        <div class="journey-bar">
+            <div id="j-fill" style="width:0%;"></div>
+            <div class="milestone-dot" id="md1" style="left:25%;"></div>
+            <div class="milestone-dot" id="md2" style="left:50%;"></div>
+            <div class="milestone-dot" id="md3" style="left:75%;"></div>
+        </div>
+        <div class="journey-labels">
+            <span>EARTH</span><span>MID-TRANSIT</span><span>APPROACH</span><span>MARS</span>
+        </div>
+    </div>
+    <div class="log-box"><div id="log-text">Initialising mission systems...</div></div>
+    <div id="choice-area"></div>
+    <button id="continue-btn" onclick="nextPhase()">CONTINUE</button>
+</div>
+
+<!-- Death overlays -->
+<div class="overlay" id="starve-overlay">
+    <h1 style="color:var(--red);">STARVED</h1>
+    <p>Rations depleted on day <span id="starve-day">—</span>. The silence of deep space was the last thing ARES-1 heard.</p>
+    <p style="color:var(--gold); font-size:0.65rem; margin-top:0;" id="starve-hint"></p>
+    <button style="background:var(--red); color:#000;" onclick="goLvl3()">REPACK AND RETRY</button>
+</div>
+
+<div class="overlay" id="dead-overlay">
+    <h1 style="color:var(--red);">KIA</h1>
+    <p id="dead-msg">You didn't make it.</p>
+    <button style="background:var(--red); color:#000;" onclick="goLvl3()">RETURN TO LVL 3</button>
+</div>
+
+<!-- Dr. Aris Mann log -->
+<div id="log-overlay">
+    <div class="log-paper">
+        <div class="log-header">ENCRYPTED SYSTEM LOG // ARES-1 // Aris Mann</div>
+        <div class="log-title">HANGAR__01_UNAUTHORISED__LOG_</div>
+        <div class="log-body">
+            <p>If anyone is reading this, I am writing this before I leave for Mars. ARES-1 was my first child. It failed the tests back then, it couldn't even escape the Earth. They called it a failure - Too slow, too crude. Yet I still hoped one determined soul would make it fly.</p>
+            <p>I have spent thirty-one years building the ARES program. I have watched it become a weapon of selection. The rich will ascend first. The corporations that funded the launches will claim Mars for themselves — territory, oxygen farms, water rights.</p>
+            <p>But funnily enough, the universe always pays back. They will realise it soon, without manforce they won't survive on Mars for long.</p>
+            <p>I was removed from the program last month. Too vocal. Too inconvenient. I had been asking questions about the selection — why certain colony applications were rejected, who was approving the override lists. They wont fire me though. They will take me there. To Mars.</p>
+            <p>But before they take me and seperate me from my family, I have improved ARES-1. Quietly. The engine tolerances, the nav system, the life support calibration. I have left this log in the encrypted partition. I have made at least one path possible for at least one person. And I know this may sound foolish but I am seeing visions... of you reading this.</p>
+            <p class="warning">"Now before I leave, just remeber - You may reach Mars but, it is not as kind as our mother Earth was."</p>
+            <p class="sig">— Dr. Aris Mann, Chief Engineer, ARES Program</p>
+        </div>
+        <button id="close-log-btn" onclick="closeLog()">CLOSE LOG</button>
+    </div>
+</div>
+
+<!-- Combat screen -->
+<div id="combat-screen">
+    <div class="combat-msg" id="combat-msg">INCOMING FIRE</div>
+    <div class="combat-sub" id="combat-sub">CORP INTERCEPTOR — MOVE YOUR SHIP</div>
+    <div id="dodge-arena">
+        <div id="laser"></div>
+        <div id="hit-flash"></div>
+        <div id="player-ship">▲</div>
+    </div>
+    <div class="combat-hint" id="combat-hint">MOVE MOUSE / TOUCH TO DODGE</div>
+    <button id="heal-btn" onclick="healAndSurvive()">USE MED KIT — HEAL</button>
+</div>
+
+<script>
+const shipClass    = localStorage.getItem("shipClass")    || "GHOST RUNNER";
+const survivalStr  = localStorage.getItem("survivalDays") || "121 DAYS";
+const survivalDays = parseInt(survivalStr);
+const finalVelocity = parseFloat(localStorage.getItem("finalVelocity") || "10.9");
+
+const JOURNEY_DAYS   = shipClass === "GHOST RUNNER" ? 200 : Math.round(800 + (10.9 - finalVelocity) / 0.5 * 300);
+const MILESTONE_DAYS = [
+    Math.floor(JOURNEY_DAYS * 0.25),
+    Math.floor(JOURNEY_DAYS * 0.50),
+    Math.floor(JOURNEY_DAYS * 0.75),
+    JOURNEY_DAYS
+];
+
+let currentDay   = 1;
+let rationsLeft  = survivalDays;
+let hp           = 100;
+let phase        = 0;
+let hitOnce      = false;
+let dodged       = false;
+let laserX       = 50;
+let playerX      = 50;
+let combatTimer  = null;
+
+// ── Phase data ────────────────────────────────────────────────────────────────
+const GR_PHASES = [
+    {
+        day: 1,
+        label: "PHASE 1", title: "DEPARTURE", sub: "DAY 1 — EARTH ORBIT CLEAR",
+        log: `<b>ARES-1 online.</b> All systems nominal. Earth shrinks behind you — a bruised marble fading into black.\n\nYou have <b>${survivalDays} days</b> of rations. The direct Mars window is <b>200 days</b>. There is no room for waste.\n\n<span class='warn'>FACT: At its closest, Mars is 54.6 million km from Earth. At its farthest, 401 million km. Your departure window is everything.</span>`,
+        choices: [
+            { label: "FULL BURN",      desc: "Push engines hard. Shave days off transit but burns more fuel.", cost: 8,   good: true, text: "Full burn initiated. <span class='good'>Trajectory accelerated.</span> Engine temp nominal. The stars blur slightly at the edges." },
+            { label: "STANDARD BURN",  desc: "Safe, steady acceleration. No ration cost.",                    cost: 0,   good: true, text: "Standard burn underway. <span class='good'>Trajectory locked. Rations conserved.</span> ARES-1 hums quietly." },
+            { label: "RATIONING MODE", desc: "Cut consumption to extend reserves. Slightly slower.",          cost: -10, good: true, text: "Rations cut. <span class='good'>+10 survival days banked.</span> Hunger is a background noise you learn to ignore." }
+        ]
+    },
+    {
+        day: Math.floor(JOURNEY_DAYS * 0.2),
+        label: "INTERLUDE", title: "OPEN SPACE", sub: `DAY ${Math.floor(JOURNEY_DAYS * 0.2)} — FIVE DAYS OF NOTHING`,
+        log: `The nav computer flags a quiet window — no debris, no anomalies. Just 5 days of open void.\n\nYou could push through on autopilot. Or step outside the routine and feel where you are.\n\n<span class='warn'>FACT: Space is not empty. Between Earth and Mars lies a constant stream of solar wind — charged particles travelling at 400 km/s. You can't see it. ARES-1's rad-shielding is the only thing between you and it.</span>`,
+        explore: true,
+        choices: [
+            { label: "EXPLORE — LOOK OUT", desc: "Spend the window at the viewport. 5 days. No cost.", cost: 0, good: true, text: `<span class='good'>Day 1:</span> The sun is smaller than you've ever seen it. Still blinding if you look directly at it.<br><br><span class='good'>Day 2:</span> A meteoroid passes — fist-sized, moving at 20 km/s. ARES-1's radar pinged it 4 seconds before it crossed your bow. 4 seconds.<br><br><span class='good'>Day 3:</span> You spot what might be another ship's debris trail — old, cold, tumbling. Someone didn't make it this far.<br><br><span class='good'>Day 4:</span> The viewport fogs slightly from your breath. You realise this is the most alone any human has ever been.<br><br><span class='good'>Day 5:</span> Mars is still invisible to the naked eye. You are truly between worlds. <span class='warn'>Back to work.</span>` },
+            { label: "PUSH THROUGH", desc: "Stay on schedule. Autopilot the 5 days.", cost: 0, good: true, text: "5 days on autopilot. The ship ran clean. <span class='warn'>You didn't look out the viewport once.</span> Efficient." }
+        ]
+    },
+    {
+        day: Math.floor(JOURNEY_DAYS * 0.45),
+        label: "PHASE 2", title: "DEBRIS FIELD", sub: `DAY ${Math.floor(JOURNEY_DAYS * 0.45)} — ASTEROID BELT FRINGE`,
+        log: `ARES-1 nav flags a sparse debris field — fringe of the inner asteroid belt. Not dense, but enough to matter.\n\n<span class='warn'>FACT: The asteroid belt contains over 1 million rocks larger than 1km. Despite what films show, the average distance between them is 600,000 km. You're unlikely to hit one — but unlikely is not impossible.</span>`,
+        choices: [
+            { label: "ACTIVE EVASION",   desc: "Manual thruster burns to thread through. Ration cost, zero hull risk.", cost: 15, good: true, text: "Evasion complete. <span class='good'>Hull clean.</span> <span class='warn'>15 ration-days burned in the burns.</span> The largest rock missed by 400 km." },
+            { label: "PASSIVE DEFLECT",  desc: "Angle hull and trust the shielding. Some risk.", cost: 5, good: null, roll: true, text_good: "<span class='good'>Hull deflected minor fragments cleanly. 5 rations used. No damage.</span>", text_bad: "<span class='danger'>One fist-sized fragment punched through the outer plating. Hull -20%. 5 rations used.</span>", hp: -20 },
+            { label: "DEAD COAST",       desc: "Cut engines, drift cold. Minimises radar profile. Risky.", cost: 0, good: false, text: "<span class='danger'>Three impacts. Hull -30%.</span> ARES-1 shudders. A low metallic groan echoes through the frame.", hp: -30 }
+        ]
+    },
+    {
+        day: Math.floor(JOURNEY_DAYS * 0.65),
+        label: "PHASE 3", title: "COMMS BLACKOUT", sub: `DAY ${Math.floor(JOURNEY_DAYS * 0.65)} — SOLAR INTERFERENCE`,
+        log: `All comms dead. Solar conjunction — the sun sits directly between Earth and your position. No signal in, no signal out. You are completely alone.\n\nThe life support secondary loop is drawing 18% more power than spec. Something is degrading.\n\n<span class='warn'>FACT: During solar conjunction, a signal from Earth to Mars takes up to 24 minutes one way. In blackout, there is no signal at all. Astronauts on Mars surface would have to make all decisions independently for weeks.</span>`,
+        choices: [
+            { label: "EVA REPAIR",      desc: "Go outside and fix the loop. Dangerous but saves rations.", cost: -15, good: null, roll: true, text_good: "<span class='good'>EVA successful. Loop repaired. Saved 15 ration-days.</span> The void outside the airlock was absolute.", text_bad: "<span class='danger'>EVA incident — tether snagged. Hull -10%. No savings made.</span> You got back inside. That's what matters.", hp: -10 },
+            { label: "SOFTWARE PATCH",  desc: "Reroute power through backup circuits. Partial fix.", cost: 8, good: true, text: "Patch applied. <span class='warn'>8 ration-days lost to the inefficiency.</span> Loop stable for now." },
+            { label: "IGNORE IT",       desc: "Let it drain. You'll be fine.", cost: 22, good: false, text: "<span class='danger'>Loop degraded further. 22 ration-days consumed in the drift.</span> The ship feels colder." }
+        ]
+    },
+    {
+        day: Math.floor(JOURNEY_DAYS * 0.88),
+        label: "PHASE 4", title: "FINAL APPROACH", sub: `DAY ${Math.floor(JOURNEY_DAYS * 0.88)} — MARS VISIBLE`,
+        log: `<span class='good'>There.</span> A red smear in the black, growing by the hour. Mars.\n\nFinal deceleration burn coming. Ghost Runner is light — you have options.\n\n<span class='warn'>FACT: Mars has the largest dust storms in the solar system. Global storms can last months and blanket the entire planet. From orbit, the surface disappears entirely.</span>`,
+        choices: [
+            { label: "AGGRESSIVE ENTRY", desc: "Max deceleration. Arrive fast. High ration cost.", cost: 18, good: true, text: "<span class='good'>Aggressive entry successful.</span> <span class='warn'>18 ration-days burned.</span> Mars fills the entire viewport." },
+            { label: "STANDARD ENTRY",   desc: "Textbook deceleration. No extra cost.", cost: 0, good: true, text: "<span class='good'>Standard entry nominal.</span> ARES-1 slides into Mars orbit without complaint." },
+            { label: "DRIFT AND CORRECT",desc: "Coast as long as possible, short correction burn. Saves rations, small risk.", cost: -8, good: null, roll: true, text_good: "<span class='good'>Drift worked perfectly. 8 ration-days saved.</span>", text_bad: "<span class='warn'>Drift overran. Correction burn added 10 days to transit.</span>", extraDays: 10 }
+        ]
+    }
+];
+
+const T_M = [
+    Math.floor(JOURNEY_DAYS * 0.15), Math.floor(JOURNEY_DAYS * 0.28),
+    Math.floor(JOURNEY_DAYS * 0.42), Math.floor(JOURNEY_DAYS * 0.58),
+    Math.floor(JOURNEY_DAYS * 0.72), Math.floor(JOURNEY_DAYS * 0.86),
+    JOURNEY_DAYS
+];
+
+const TITAN_PHASES = [
+    {
+        day: 1, label: "PHASE 1", title: "STRAY ORBIT", sub: "DAY 1 — CALCULATING TRANSFER",
+        log: `<b>ARES-1 in stray orbit.</b> The primary injection window is behind you. But you are not dead yet.\n\nYou have <b>${survivalDays} days</b> of rations. At your current velocity this corrective path to Mars will take <b>${JOURNEY_DAYS} days</b>. Every decision matters.\n\n<span class='warn'>FACT: A Hohmann transfer orbit is the most fuel-efficient path between two planets. It requires two burns — one to leave the first orbit, one to enter the second. The catch: timing is everything. Miss the window and you spend months correcting.</span>`,
+        choices: [
+            { label: "FULL HOHMANN CALC",    desc: "Spend 4 days on precise orbital math. Shortens transit significantly.", cost: 4, good: true, text: "<span class='good'>Hohmann transfer locked.</span> Optimal burn angle confirmed. <span class='good'>Transit shortened by 25 days.</span>", saveDays: 25 },
+            { label: "APPROXIMATE BURN",     desc: "Rough angles, faster start. Less precise.", cost: 0, good: null, roll: true, text_good: "<span class='good'>Burn angle within tolerance. On course.</span>", text_bad: "<span class='warn'>2° off. Course will need correction. 18 extra days added.</span>", extraDays: 18 },
+            { label: "PASSIVE OBSERVATION",  desc: "3 days of star-tracking for a cleaner angle. Costs rations.", cost: 8, good: true, text: "<span class='good'>Perfect transfer angle computed from star positions.</span> <span class='warn'>8 rations consumed.</span> Transit shortened by 30 days.", saveDays: 30 }
+        ]
+    },
+    {
+        day: T_M[0], label: "PHASE 2", title: "INITIAL BURN", sub: `DAY ${T_M[0]} — ENGINE STRESS`,
+        log: `The first long burn is underway. ARES-1 was not designed for this — the corrective trajectory pushes the engine frame beyond its rated cycle.\n\nA stress fracture is forming in the secondary thruster mount.\n\n<span class='warn'>FACT: Rocket engines experience thermal cycling stress every burn — metal expands and contracts with extreme temperature swings between -270°C in shadow and +120°C in sunlight. Over time, this cracks welds that no human hand can reach.</span>`,
+        choices: [
+            { label: "CONTROLLED COOL-DOWN", desc: "Cut thrust for 6 hours, let the frame settle. Costs rations.", cost: 10, good: true, text: "<span class='good'>Frame cooled. Fracture stabilised.</span> <span class='warn'>10 ration-days lost to the pause.</span> The ship holds." },
+            { label: "INTERNAL BRACE",       desc: "Crawl into the frame and manually brace it. Risky.", cost: 0, good: null, roll: true, text_good: "<span class='good'>Brace successful. Frame reinforced. No ration cost.</span>", text_bad: "<span class='danger'>Slip during the brace. Hull integrity -15%. Frame partially reinforced.</span>", hp: -15 },
+            { label: "IGNORE AND PUSH",      desc: "Keep burning. It might hold.", cost: 0, good: false, text: "<span class='danger'>Fracture widened under continued stress. Hull -25%.</span> A low vibration runs through every surface.", hp: -25 }
+        ]
+    },
+    {
+        day: T_M[1], label: "INTERLUDE", title: "OPEN SPACE", sub: `DAY ${T_M[1]} — FIVE DAYS OF SILENCE`,
+        log: `A quiet stretch. No anomalies, no alerts. Just the hum of the engine and 360 degrees of nothing.\n\nYou could run diagnostics on autopilot. Or step to the viewport and sit with where you are.\n\n<span class='warn'>FACT: The psychological effects of isolation in deep space are not fully understood. No human has ever been this far from Earth alone. Cosmonaut studies on ISS show measurable cognitive decline after 6 months. You are well past that threshold.</span>`,
+        explore: true,
+        choices: [
+            { label: "EXPLORE — LOOK OUT", desc: "5 days at the viewport. No ration cost.", cost: 0, good: true, text: `<span class='good'>Day 1:</span> The sun is a bright star now. Not a disc — a point. You have travelled further than most humans ever will.<br><br><span class='good'>Day 2:</span> A meteoroid swarm passes — pebble-sized rocks, thousands of them, spreading like slow smoke across the nav display. Beautiful if you forget they'd punch through the hull at 15 km/s.<br><br><span class='good'>Day 3:</span> You find Dr. Mann's initials scratched into the wall panel near the viewport. He was here. He sat exactly where you're sitting.<br><br><span class='good'>Day 4:</span> A second meteoroid — larger, alone — drifts past at 300 km distance. ARES-1's radar tracked it for 11 hours before it passed. You watched the whole thing.<br><br><span class='good'>Day 5:</span> You sleep better than you have in weeks. <span class='warn'>Back to it.</span>` },
+            { label: "RUN DIAGNOSTICS", desc: "Use the quiet window for full system check.", cost: 0, good: true, text: "Full system diagnostic complete. <span class='good'>No critical faults.</span> Life support nominal. Engine stress within acceptable range. <span class='warn'>You didn't look out the viewport once.</span>" }
+        ]
+    },
+    {
+        day: T_M[2], label: "PHASE 3", title: "SOLAR STORM", sub: `DAY ${T_M[2]} — RADIATION SURGE`,
+        log: `ARES-1's sensors spike. A coronal mass ejection — a billion-tonne burst of magnetised plasma from the sun — is heading your way. The rad-shielding array activates automatically.\n\nYou have 40 minutes to decide how to ride it out.\n\n<span class='warn'>FACT: A major CME in 1989 knocked out power across Quebec for 9 hours and damaged satellites in orbit. In deep space without Earth's magnetosphere, a direct hit from a large CME would be lethal without shielding.</span>`,
+        choices: [
+            { label: "BOOST SHIELDING", desc: "Divert all power to the rad-array. Costs rations, guarantees safety.", cost: 14, good: true, text: "<span class='good'>Shielding at full. Storm passed cleanly.</span> <span class='warn'>14 ration-days consumed in the power draw.</span>" },
+            { label: "TRUST THE ARRAY",  desc: "Standard shielding. Rated for this — probably.", cost: 0, good: null, roll: true, text_good: "<span class='good'>Array held. No breach. Rations intact.</span>", text_bad: "<span class='danger'>Partial breach on the aft panels. Hull -15%. Mild radiation exposure.</span>", hp: -15 },
+            { label: "SHELTER IN CORE",  desc: "Move to the shielded core compartment. No ration cost but hull takes full hit.", cost: -5, good: false, text: "<span class='danger'>Hull plating took the full storm. -30% integrity.</span> You're alive. ARES-1 is not happy. 5 rations saved.", hp: -30 }
+        ]
+    },
+    {
+        day: T_M[3], label: "PHASE 4", title: "MID-COURSE CORRECTION", sub: `DAY ${T_M[3]} — TRAJECTORY DRIFT`,
+        log: `The stray orbit is drifting. A small gravitational pull from a passing asteroid cluster has nudged your trajectory by 0.3°. Tiny angle. Enormous consequence over hundreds of millions of kilometres.\n\nCorrection burn required.\n\n<span class='warn'>FACT: The Voyager 1 probe, launched in 1977, required trajectory corrections calculated to within fractions of a degree. A 0.1° error at launch would have missed Jupiter entirely.</span>`,
+        choices: [
+            { label: "PRECISION BURN", desc: "Full calculation before firing. High ration cost, guaranteed intercept.", cost: 24, good: true, text: "<span class='good'>Precision correction complete. Mars intercept confirmed.</span> <span class='warn'>24 ration-days consumed.</span>" },
+            { label: "SPLIT BURN",     desc: "Two smaller burns over 2 days. Moderate cost.", cost: 14, good: null, roll: true, text_good: "<span class='good'>Both burns clean. Intercept confirmed.</span> <span class='warn'>14 rations consumed.</span>", text_bad: "<span class='warn'>Second burn miscalculated. 10 extra transit days. 14 rations consumed.</span>", extraDays: 10 },
+            { label: "MINIMAL BURN",   desc: "Just enough to stop it getting worse. Cheap but shallow fix.", cost: 6, good: false, text: "<span class='danger'>Approach angle still shallow. Hull will take stress on final entry. -15% integrity.</span>", hp: -15 }
+        ]
+    },
+    {
+        day: T_M[4], label: "PHASE 5", title: "COMMS WINDOW", sub: `DAY ${T_M[4]} — SIGNAL RECEIVED`,
+        log: `First signal in weeks. Not from Earth — from Mars. A low-frequency automated beacon, probably a corp navigation buoy.\n\nIt's broadcasting a tight-beam warning on a corp frequency: <span class='danger'>"UNAUTHORISED APPROACH — TURN BACK."</span>\n\nYou also pick up something else — a faint, scrambled secondary signal buried in the noise.\n\n<span class='warn'>FACT: Mars has two moons — Phobos and Deimos. Phobos orbits so close it rises in the west and sets in the east three times per Martian day, and is slowly spiralling inward. In about 50 million years it will either crash into Mars or break apart into a ring.</span>`,
+        choices: [
+            { label: "DECODE THE SIGNAL",    desc: "Spend 2 days decoding the secondary transmission. Ration cost.", cost: 6, good: true, text: "Signal decoded. <span class='good'>Coordinates for an unmanned approach corridor — a gap in corp sensor coverage.</span> Dr. Mann left this here. <span class='warn'>6 ration-days consumed. Path to Mars is clearer.</span>", saveDays: 8 },
+            { label: "IGNORE AND PROCEED",   desc: "Corp warnings are for corp ships. Keep flying.", cost: 0, good: true, text: "<span class='good'>Warning ignored. You are not a corp ship.</span> Trajectory unchanged." },
+            { label: "BROADCAST RESPONSE",   desc: "Reply on open frequency. Risk alerting patrol ships.", cost: 0, good: null, roll: true, text_good: "<span class='good'>No response. Buoy is automated, no one was listening.</span>", text_bad: "<span class='danger'>Response triggered a patrol sweep. Hull stress from evasive manoeuvre. -10%.</span>", hp: -10 }
+        ]
+    },
+    {
+        day: T_M[5], label: "PHASE 6", title: "FINAL APPROACH", sub: `DAY ${T_M[5]} — MARS ORBIT`,
+        log: `<span class='good'>Mars.</span> It fills the viewport now — ruddy, immense, scarred by ancient canyons and dead volcanoes.\n\nOlympus Mons is visible from orbit — a shield volcano three times the height of Everest. Somewhere down there, Dr. Mann is in a detention block.\n\nFinal orbital insertion burn. ARES-1 has carried you across the solar system.\n\n<span class='warn'>FACT: Mars' atmosphere is 95% carbon dioxide and less than 1% the density of Earth's. A human stepping outside unprotected would experience decompression, radiation, and -60°C temperatures simultaneously. The surface is not habitable without a suit.</span>`,
+        choices: [
+            { label: "HEAVY BRAKE BURN", desc: "Use Titan's mass to brake hard. Expensive but clean.", cost: 22, good: true, text: "<span class='good'>Heavy brake successful. ARES-1's mass did the work perfectly.</span> Orbit established." },
+            { label: "AEROBRAKE",        desc: "Use the upper atmosphere to bleed velocity. Free but stressful on hull.", cost: 0, good: null, roll: true, text_good: "<span class='good'>Aerobrake flawless. Zero ration cost. In orbit.</span>", text_bad: "<span class='danger'>Aerobrake angle too steep. Hull -25%. But orbit achieved.</span>", hp: -25 },
+            { label: "STANDARD BURN",    desc: "Textbook insertion. Reliable.", cost: 12, good: true, text: "<span class='good'>Standard insertion complete.</span> <span class='warn'>12 rations consumed.</span> ARES-1 settles into orbit." }
+        ]
+    }
+];
+
+const phases = shipClass === "GHOST RUNNER" ? GR_PHASES : TITAN_PHASES;
+
+// ── Stars ──────────────────────────────────────────────────────────────────────
+function makeStars() {
+    const sf = document.getElementById('starfield');
+    for (let i = 0; i < 120; i++) {
+        const s = document.createElement('div');
+        s.className = 'star';
+        const size = Math.random() * 2 + 0.5;
+        s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
+        sf.appendChild(s);
+    }
+}
+
+// ── HUD ───────────────────────────────────────────────────────────────────────
+function updateHUD() {
+    document.getElementById('hud-ship').innerText    = shipClass;
+    document.getElementById('hud-day').innerText     = String(currentDay).padStart(3,'0');
+    document.getElementById('hud-rations').innerText = rationsLeft + ' DAYS';
+    document.getElementById('hud-hp').innerText      = hp + '%';
+    document.getElementById('health-fill').style.width      = hp + '%';
+    document.getElementById('health-fill').style.background = hp > 50 ? 'var(--teal)' : hp > 25 ? 'var(--gold)' : 'var(--red)';
+
+    const pct = Math.min((currentDay / JOURNEY_DAYS) * 100, 100);
+    document.getElementById('j-fill').style.width = pct + '%';
+    for (let i = 0; i < 3; i++) {
+        const dot = document.getElementById('md' + (i+1));
+        if (currentDay >= MILESTONE_DAYS[i]) dot.classList.add('passed');
+    }
+}
+
+// ── Render phase ──────────────────────────────────────────────────────────────
+function renderPhase(p) {
+    const data = phases[p];
+    const elapsed = data.day - currentDay;
+    if (elapsed > 0) rationsLeft = Math.max(0, rationsLeft - elapsed);
+    currentDay = data.day;
+
+    document.getElementById('phase-label').innerText = data.label;
+    document.getElementById('phase-title').innerText = data.title;
+    document.getElementById('phase-sub').innerText   = data.sub;
+    updateHUD();
+
+    if (rationsLeft <= 0) { starve(); return; }
+
+    const daysRemaining = JOURNEY_DAYS - currentDay;
+    let warnLine = '';
+    if (rationsLeft < daysRemaining * 0.15) {
+        warnLine = `<br><br><span class='danger'>⚠ RATION CRITICAL — ${rationsLeft} days left. ${daysRemaining} days to Mars. One wrong call ends this.</span>`;
+    } else if (rationsLeft < daysRemaining * 0.35) {
+        warnLine = `<br><br><span class='warn'>⚠ RATIONS LOW — ${rationsLeft} days left. ${daysRemaining} days remaining. Choose conservatively.</span>`;
+    }
+
+    document.getElementById('log-text').innerHTML = data.log.replace(/\n/g,'<br>') + warnLine;
+    // scroll log to top for new phase
+    const lb = document.querySelector('.log-box');
+    if (lb) lb.scrollTop = 0;
+
+    const area = document.getElementById('choice-area');
+    area.innerHTML = '';
+    document.getElementById('continue-btn').style.display = 'none';
+
+    data.choices.forEach((c, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        const costTxt = c.cost > 0 ? `−${c.cost} ration-days` : c.cost < 0 ? `+${Math.abs(c.cost)} ration-days` : 'no ration cost';
+        btn.innerHTML = `<span class="c-label">OPTION ${String.fromCharCode(65+i)}</span>${c.desc}<span class="c-cost">${costTxt}</span>`;
+        btn.onclick = () => applyChoice(c, data);
+        area.appendChild(btn);
+    });
+}
+
+function applyChoice(c, data) {
+    document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+    const roll = Math.random() > 0.45;
+    let resultText = '';
+
+    if (c.roll) {
+        if (roll) {
+            resultText = c.text_good;
+            if (c.cost) rationsLeft -= c.cost;
+            if (c.saveDays) currentDay -= c.saveDays;
+        } else {
+            resultText = c.text_bad;
+            if (c.cost) rationsLeft -= c.cost;
+            if (c.hp) hp = Math.max(0, hp + c.hp);
+            if (c.extraDays) currentDay += c.extraDays;
+        }
+    } else {
+        resultText = c.text;
+        rationsLeft -= c.cost;
+        if (c.saveDays) currentDay -= c.saveDays;
+        if (c.hp) hp = Math.max(0, hp + c.hp);
+        if (c.extraDays) currentDay += c.extraDays;
+    }
+
+    rationsLeft = Math.max(0, rationsLeft);
+    hp = Math.max(0, Math.min(100, hp));
+    document.getElementById('log-text').innerHTML = resultText;
+    updateHUD();
+
+    if (hp <= 0) { killPlayer("ARES-1's hull gave out. The ship became a tomb drifting in deep space."); return; }
+    const daysLeft = JOURNEY_DAYS - currentDay;
+    if (rationsLeft <= 0 || (phase < phases.length && rationsLeft < daysLeft)) { starve(); return; }
+
+    document.getElementById('choice-area').innerHTML = '';
+    const cb = document.getElementById('continue-btn');
+    cb.style.display = 'block';
+    phase++;
+}
+
+function nextPhase() {
+    document.getElementById('continue-btn').style.display = 'none';
+    if (phase >= phases.length) showArisLog();
+    else renderPhase(phase);
+}
+
+// ── Aris Mann log ─────────────────────────────────────────────────────────────
+function showArisLog() {
+    document.getElementById('phase-label').innerText = 'ARRIVAL';
+    document.getElementById('phase-title').innerText = 'ARRIVAL';
+    document.getElementById('phase-sub').innerText   = 'MARS ORBIT ESTABLISHED';
+    document.getElementById('log-text').innerHTML    = `<span class='good'>ARES-1 in stable Mars orbit.</span> Day ${currentDay}. Rations: ${rationsLeft} days remaining.<br><br>The nav system flags an old encrypted partition. It has been here the whole journey. Something left behind.`;
+    document.getElementById('choice-area').innerHTML = '';
+    const cb = document.getElementById('continue-btn');
+    cb.innerText  = 'OPEN ENCRYPTED LOG';
+    cb.style.display = 'block';
+    cb.onclick = () => { document.getElementById('log-overlay').style.display = 'flex'; cb.style.display = 'none'; };
+    updateHUD();
+}
+
+function closeLog() {
+    document.getElementById('log-overlay').style.display = 'none';
+    startCombat();
+}
+
+// ── Combat ────────────────────────────────────────────────────────────────────
+function startCombat() {
+    const cs = document.getElementById('combat-screen');
+    cs.style.display = 'flex';
+    hitOnce = false; dodged = false; playerX = 50;
+
+    document.getElementById('combat-msg').innerText  = 'CORP INTERCEPTOR DETECTED';
+    document.getElementById('combat-sub').innerText  = 'BRACE FOR IMPACT — MOVE TO AVOID FIRE';
+    document.getElementById('heal-btn').style.display   = 'none';
+    document.getElementById('laser').style.display      = 'none';
+    document.getElementById('combat-hint').innerText = 'MOVE MOUSE / TOUCH LEFT AND RIGHT TO DODGE';
+    updatePlayerPos(playerX);
+    setTimeout(fireLaser, 1500);
+
+    const arena = document.getElementById('dodge-arena');
+    arena.addEventListener('mousemove', e => {
+        const r = arena.getBoundingClientRect();
+        playerX = Math.max(5, Math.min(95, ((e.clientX - r.left) / r.width) * 100));
+        updatePlayerPos(playerX);
+    });
+    arena.addEventListener('touchmove', e => {
+        e.preventDefault();
+        const r = arena.getBoundingClientRect();
+        playerX = Math.max(5, Math.min(95, ((e.touches[0].clientX - r.left) / r.width) * 100));
+        updatePlayerPos(playerX);
+    }, { passive: false });
+}
+
+function updatePlayerPos(pct) {
+    document.getElementById('player-ship').style.left = pct + '%';
+}
+
+function fireLaser() {
+    if (hitOnce && dodged) return;
+    laserX = 20 + Math.random() * 60;
+    const laser = document.getElementById('laser');
+    laser.style.left    = laserX + '%';
+    laser.style.display = 'block';
+    document.getElementById('combat-msg').innerText = '⚠ INCOMING FIRE';
+
+    setTimeout(() => {
+        laser.style.display = 'none';
+        const dist = Math.abs(playerX - laserX);
+        if (dist < 8) {
+            hitOnce = true;
+            hp = Math.max(0, hp - 40);
+            updateHUD();
+            const flash = document.getElementById('hit-flash');
+            flash.style.opacity = 0.5;
+            setTimeout(() => flash.style.opacity = 0, 300);
+            document.getElementById('combat-msg').innerText  = "HULL BREACH — YOU'VE BEEN HIT";
+            document.getElementById('combat-sub').innerText  = 'USE MED KIT TO SURVIVE';
+            document.getElementById('combat-hint').innerText = hp > 0 ? 'CLICK HEAL TO USE EMERGENCY MED KIT' : '';
+            document.getElementById('heal-btn').style.display = hp > 0 ? 'block' : 'none';
+            if (hp <= 0) { endCombatDead(); return; }
+            setTimeout(fireSecondShot, 2000);
+        } else {
+            dodged = true;
+            document.getElementById('combat-msg').innerText  = 'SHOT EVADED';
+            document.getElementById('combat-sub').innerText  = 'STAY MOBILE — SECOND SHOT INCOMING';
+            setTimeout(fireSecondShot, 1200);
+        }
+    }, 800);
+}
+
+function fireSecondShot() {
+    const aimX = playerX + (Math.random() * 20 - 10);
+    laserX = Math.max(5, Math.min(95, aimX));
+    const laser = document.getElementById('laser');
+    laser.style.left    = laserX + '%';
+    laser.style.display = 'block';
+    document.getElementById('combat-msg').innerText = '⚠ SECOND SHOT';
+
+    combatTimer = setTimeout(() => {
+        laser.style.display = 'none';
+        const dist = Math.abs(playerX - laserX);
+        if (dist < 9) {
+            if (hitOnce) { endCombatDead(); }
+            else {
+                hitOnce = true;
+                hp = Math.max(0, hp - 40);
+                updateHUD();
+                const flash = document.getElementById('hit-flash');
+                flash.style.opacity = 0.5;
+                setTimeout(() => flash.style.opacity = 0, 300);
+                document.getElementById('combat-msg').innerText  = 'CRITICAL HIT — USE MED KIT NOW';
+                document.getElementById('combat-sub').innerText  = 'THIS IS YOUR LAST CHANCE';
+                document.getElementById('heal-btn').style.display = 'block';
+                document.getElementById('combat-hint').innerText = '';
+                if (hp <= 0) { endCombatDead(); }
+            }
+        } else {
+            endCombatSurvive();
+        }
+    }, 1000);
+}
+
+function healAndSurvive() {
+    document.getElementById('heal-btn').style.display = 'none';
+    hp = Math.min(100, hp + 40);
+    updateHUD();
+    document.getElementById('combat-msg').innerText  = 'MED KIT DEPLOYED';
+    document.getElementById('combat-sub').innerText  = 'HULL PATCHED — INTERCEPTOR RETREATING';
+    document.getElementById('combat-hint').innerText = '';
+    setTimeout(endCombatSurvive, 1800);
+}
+
+function endCombatSurvive() {
+    clearTimeout(combatTimer);
+    document.getElementById('combat-screen').style.display = 'none';
+    localStorage.setItem('maxLevel', 5);
+    document.getElementById('phase-label').innerText = 'MISSION COMPLETE';
+    document.getElementById('phase-title').innerText = 'MARS';
+    document.getElementById('phase-sub').innerText   = 'YOU MADE IT';
+    document.getElementById('log-text').innerHTML    = `<span class='good'>ARES-1 has entered Mars atmosphere.</span><br><br>The interceptor retreated — perhaps its pilot had orders not to pursue into the atmosphere. Perhaps they didn't expect anyone to make it this far.<br><br>Dr. Mann's warning echoes. The surface below is red and ancient and indifferent.<br><br><span class='warn'>You are the first person to arrive on your own terms.</span>`;
+    const cb = document.getElementById('continue-btn');
+    cb.innerText = 'LAND ON MARS';
+    cb.style.display = 'block';
+    cb.onclick = () => { window.location.href = 'index.html'; };
+    updateHUD();
+}
+
+function endCombatDead() {
+    clearTimeout(combatTimer);
+    document.getElementById('combat-screen').style.display = 'none';
+    killPlayer("The corp interceptor's fire tore through the hull. So close to Mars — and yet.");
+}
+
+// ── Death / starvation ────────────────────────────────────────────────────────
+function starve() {
+    const hint = shipClass === "GHOST RUNNER"
+        ? "Ghost Runner needs at least 180–225 days to reach Mars. Pack rations carefully."
+        : "Titan's journey takes a minimum of 800 days — that means heavy supplies. The slower your orbital velocity, the more you need.";
+    document.getElementById('starve-day').innerText  = currentDay;
+    document.getElementById('starve-hint').innerText = hint;
+    document.getElementById('starve-overlay').style.display = 'flex';
+}
+
+function killPlayer(msg) {
+    document.getElementById('dead-msg').innerText = msg;
+    document.getElementById('dead-overlay').style.display = 'flex';
+}
+
+function goLvl3() { localStorage.setItem('maxLevel', 3); window.location.href = 'level3.html'; }
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+makeStars();
+updateHUD();
+renderPhase(0);
+</script>
+</body>
+</html>

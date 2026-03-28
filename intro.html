@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Space Odyssey — Intro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rust:  #c0392b;
+            --glow:  #ff6b35;
+            --pale:  #d4c9b8;
+            --dust:  #8c7b6b;
+            --amber: #e8a430;
+            --bg-dark: #060303;
+        }
+
+        * { margin:0; padding:0; box-sizing:border-box; }
+        html, body { 
+            width:100%; 
+            height:100%; 
+            overflow:hidden; 
+            background:#000; 
+            font-family:'Share Tech Mono', monospace; 
+            cursor:none; 
+            color: var(--pale);
+        }
+
+        /* Hide custom cursor on touch devices */
+        @media (pointer: coarse) {
+            html, body { cursor: auto; }
+            #cursor, #cursor-ring { display: none; }
+        }
+
+        /* Ambient Grain */
+        body::after { 
+            content:''; 
+            position:fixed; 
+            inset:0; 
+            background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E"); 
+            pointer-events:none; 
+            z-index:9999; 
+            opacity:0.25; 
+            mix-blend-mode:overlay; 
+        }
+
+        /* Cursor */
+        #cursor { position:fixed; width:6px; height:6px; background:var(--glow); border-radius:50%; pointer-events:none; z-index:99999; transform:translate(-50%,-50%); mix-blend-mode:screen; }
+        #cursor-ring { position:fixed; width:28px; height:28px; border:1px solid rgba(255,107,53,0.5); border-radius:50%; pointer-events:none; z-index:99998; transform:translate(-50%,-50%); transition:width 0.2s, height 0.2s; }
+
+        #bg { position:fixed; inset:0; z-index:0; transition: transform 0.1s ease-out; }
+        #scanlines { position:fixed; inset:0; z-index:1; pointer-events:none; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.15) 2px,rgba(0,0,0,0.15) 3px); opacity: 0.4; }
+        #vignette { position:fixed; inset:0; z-index:5; pointer-events:none; background:radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.8) 100%); }
+
+        /* Cinematic Bars */
+        .bar { position:fixed; left:0; right:0; height:12vh; background:#000; z-index:50; transition:height 1.8s cubic-bezier(0.7,0,0.2,1); }
+        .bar.top { top:0; }
+        .bar.bottom { bottom:0; }
+        .bar.open-top { height:0; }
+        .bar.open-bottom { height:0; }
+
+        /* Reduce bar height on mobile */
+        @media (max-width: 480px) {
+            .bar { height: 8vh; }
+        }
+
+        /* Stage & Alignment */
+        #stage { 
+            position:fixed; 
+            inset:0; 
+            z-index:10; 
+            display:flex; 
+            align-items:center; 
+            justify-content:center; 
+            perspective: 1000px;
+            overflow: hidden;
+        }
+
+        .cin-scene { 
+            position:absolute; 
+            width: 100%;
+            max-width: 900px;
+            display:flex; 
+            flex-direction:column; 
+            align-items:center; 
+            justify-content:center; 
+            opacity:0; 
+            pointer-events:none; 
+            padding: clamp(20px, 5vw, 60px);
+            text-align:center; 
+            transition: opacity 1.5s ease; 
+        }
+        .cin-scene.active { opacity:1; pointer-events:all; }
+
+        .scene-num { 
+            position:absolute; 
+            top: -20px; 
+            font-size: clamp(0.5rem, 1.5vw, 0.65rem);
+            letter-spacing:0.6em; 
+            color: var(--rust); 
+            opacity:0.6; 
+            white-space: nowrap;
+        }
+
+        /* ── Scene 1: Elysian Corp ── */
+        #s1 .corp-logo { 
+            font-family:'Bebas Neue',sans-serif; 
+            font-size: clamp(1.6rem, 7vw, 4rem);
+            letter-spacing: clamp(0.2em, 2vw, 0.6em);
+            color: var(--pale); 
+            text-shadow: 0 0 20px rgba(212,201,184,0.3); 
+        }
+        #s1 .corp-rule { width:120px; height:1px; background:var(--rust); margin:25px auto; transform: scaleX(0); transition: transform 1.5s ease 0.5s; }
+        .active #s1 .corp-rule { transform: scaleX(1); }
+        #s1 .corp-sub { 
+            font-size: clamp(0.55rem, 1.8vw, 0.75rem);
+            letter-spacing: clamp(0.15em, 1.5vw, 0.4em);
+            color: var(--dust); 
+            text-transform:uppercase; 
+            margin-bottom: 20px; 
+        }
+        #s1 .corp-tagline { 
+            font-family:'Crimson Pro',serif; 
+            font-style:italic; 
+            font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+            color: rgba(212,201,184,0.5); 
+            letter-spacing:0.15em; 
+            padding: 0 10px;
+        }
+
+        /* ── Scene 2: Status Report ── */
+        #s2 .stat-header { 
+            font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+            letter-spacing:0.4em; 
+            color: var(--rust); 
+            margin-bottom: clamp(20px, 4vh, 40px);
+        }
+        #s2 .stat-row { width:100%; max-width:500px; }
+        .stat-line { 
+            display:flex; 
+            justify-content:space-between; 
+            align-items:center; 
+            border-bottom:1px solid rgba(140,123,107,0.2); 
+            padding: clamp(10px, 2.5vh, 18px) 0;
+            opacity:0; 
+            transform: translateX(-10px);
+        }
+        .stat-label { 
+            font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+            letter-spacing: clamp(0.1em, 1vw, 0.2em);
+            color:var(--dust); 
+            text-transform:uppercase; 
+        }
+        .stat-val { 
+            font-family:'Bebas Neue',sans-serif; 
+            font-size: clamp(1.2rem, 5vw, 1.8rem);
+            color:var(--rust); 
+        }
+        .stat-val.white { color:var(--pale); }
+        .stat-val.amber { color:var(--amber); }
+
+        /* ── Scene 3: Broadcast ── */
+        #s3 .broadcast { 
+            width:100%; 
+            max-width: min(700px, calc(100vw - 40px));
+            min-height: 200px;
+            border:1px solid rgba(192,57,43,0.3); 
+            padding: clamp(24px, 5vw, 60px);
+            background:rgba(8,4,4,0.95); 
+            text-align: left;
+            position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+        #s3 .broadcast::before { 
+            content:'● SIGNAL RECEPTION'; 
+            position:absolute; 
+            top:-10px; 
+            left: clamp(15px, 3vw, 30px);
+            background:#000; 
+            padding:0 15px; 
+            font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+            color:var(--rust); 
+            letter-spacing:0.2em; 
+            white-space: nowrap;
+        }
+        #s3 .broadcast-speaker { 
+            font-size: clamp(0.55rem, 1.8vw, 0.7rem);
+            letter-spacing:0.3em; 
+            color:var(--rust); 
+            text-transform:uppercase; 
+            margin-bottom: clamp(16px, 3vh, 30px);
+        }
+        #s3 .broadcast-text { 
+            font-family:'Crimson Pro',serif; 
+            font-size: clamp(1rem, 3vw, 1.4rem);
+            line-height:1.8; 
+            color:var(--pale); 
+            min-height: 1.8em; 
+        }
+        #s3 .broadcast-text em { color:var(--glow); font-style:italic; }
+        #s3 .broadcast-text .red { color:var(--rust); font-weight: bold; }
+
+        /* Scrollable broadcast on small screens */
+        @media (max-height: 600px) {
+            #s3 .broadcast {
+                max-height: 55vh;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+        }
+
+        /* ── Scene 4: Voyager ── */
+        #s4 .you-label { 
+            font-size: clamp(0.6rem, 2vw, 0.75rem);
+            letter-spacing:0.5em; 
+            color:var(--dust); 
+            text-transform:uppercase; 
+        }
+        #s4 .you-name { 
+            font-family:'Bebas Neue',sans-serif; 
+            font-size: clamp(3.5rem, 18vw, 12rem);
+            line-height:0.85; 
+            margin: clamp(12px, 2vh, 20px) 0;
+        }
+        #s4 .you-name span { color:var(--glow); display:block; text-shadow:0 0 40px rgba(255,107,53,0.4); }
+        #s4 .you-sub { 
+            font-family:'Crimson Pro',serif; 
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            color:var(--dust); 
+            line-height:1.8; 
+            max-width: 500px; 
+            padding: 0 10px;
+        }
+
+        /* ── Scene 5: Finale ── */
+        #s5 .main-title { 
+            font-family:'Bebas Neue',sans-serif; 
+            font-size: clamp(4rem, 20vw, 14rem);
+            line-height:0.8; 
+            letter-spacing:0.05em; 
+            margin-bottom: clamp(12px, 2vh, 20px);
+        }
+        #s5 .main-title span { color:var(--glow); display:block; }
+        .enter-btn { 
+            margin-top: clamp(20px, 4vh, 40px);
+            padding: clamp(14px, 2.5vh, 20px) clamp(28px, 8vw, 60px);
+            background:transparent; 
+            border:1px solid var(--glow); 
+            color:var(--glow); 
+            font-family:'Share Tech Mono'; 
+            font-size: clamp(0.65rem, 2vw, 0.85rem);
+            letter-spacing:0.4em; 
+            text-transform:uppercase; 
+            cursor: pointer;
+            transition: all 0.4s;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        /* restore cursor:none only on non-touch */
+        @media (pointer: fine) {
+            .enter-btn { cursor: none; }
+        }
+        .enter-btn:hover, .enter-btn:active { 
+            background: var(--glow); 
+            color: #000; 
+            box-shadow: 0 0 30px rgba(255,107,53,0.4); 
+        }
+
+        /* ── Utilities ── */
+        #ts { 
+            position:fixed; 
+            top: clamp(12px, 2.5vh, 25px);
+            left: clamp(15px, 3vw, 30px);
+            font-size: clamp(0.45rem, 1.3vw, 0.55rem);
+            letter-spacing:0.2em; 
+            color:rgba(140,123,107,0.3); 
+            z-index:100; 
+            white-space: nowrap;
+            /* hide on very small screens to save space */
+        }
+        @media (max-width: 360px) {
+            #ts { display: none; }
+        }
+
+        #skip { 
+            position:fixed; 
+            bottom: clamp(20px, 3.5vh, 30px);
+            right: clamp(20px, 4vw, 40px);
+            font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+            color:rgba(140,123,107,0.4); 
+            background:none; 
+            border:none; 
+            z-index:100; 
+            letter-spacing:0.2em; 
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            padding: 8px;  /* larger tap target */
+        }
+        @media (pointer: fine) {
+            #skip { cursor: none; }
+        }
+        @media (pointer: coarse) {
+            #skip { cursor: pointer; }
+            /* Hide keyboard hint on touch screens */
+            #skip::after { content: ''; }
+        }
+
+        /* Hide keyboard shortcut on touch devices */
+        .kbd-hint {
+            display: inline;
+        }
+        @media (pointer: coarse) {
+            .kbd-hint { display: none; }
+        }
+
+        #dots { 
+            position:fixed; 
+            bottom: clamp(20px, 3.5vh, 35px);
+            left:50%; 
+            transform:translateX(-50%); 
+            display:flex; 
+            gap: clamp(8px, 2vw, 12px);
+            z-index:100; 
+        }
+        .dot { 
+            width: clamp(4px, 1vw, 5px);
+            height: clamp(4px, 1vw, 5px);
+            border-radius:50%; 
+            background:rgba(140,123,107,0.3); 
+            transition: 0.5s; 
+        }
+        .dot.active { 
+            background:var(--glow); 
+            transform:scale(1.5); 
+            width: clamp(14px, 4vw, 20px);
+            border-radius:3px; 
+        }
+        
+        #flash { position:fixed; inset:0; z-index:60; background:white; opacity:0; pointer-events:none; }
+        .tw-cursor { display:inline-block; width:2px; height:1em; background:var(--glow); vertical-align:middle; animation: blink 0.8s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* ── Landscape phone adjustments ── */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .bar { height: 5vh; }
+            .cin-scene { padding: 12px clamp(20px, 5vw, 60px); }
+            #s4 .you-name { font-size: clamp(2.5rem, 12vw, 6rem); }
+            #s5 .main-title { font-size: clamp(3rem, 15vw, 8rem); }
+            #s2 .stat-row { max-width: 90%; }
+        }
+
+        /* ── Tablet portrait (600–1024px) ── */
+        @media (min-width: 600px) and (max-width: 1024px) {
+            .cin-scene { padding: 40px clamp(30px, 5vw, 60px); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+<canvas id="bg"></canvas>
+<div id="scanlines"></div>
+<div id="vignette"></div>
+<div id="flash"></div>
+<div class="bar top" id="barTop"></div>
+<div class="bar bottom" id="barBottom"></div>
+<div id="ts">ELYSIAN CORP — SECURED TERMINAL // 2136.04.17</div>
+
+<div id="stage">
+    <div class="cin-scene" id="s1">
+        <div class="scene-num">LOG_01 / ESTABLISHMENT</div>
+        <div class="corp-logo">ELYSIAN CORPORATION</div>
+        <div class="corp-rule"></div>
+        <div class="corp-sub">Securing Humanity's Future</div>
+        <div class="corp-tagline">"Because some lives are worth more than others."</div>
+    </div>
+
+    <div class="cin-scene" id="s2">
+        <div class="scene-num">LOG_02 / CRITICAL_STATUS</div>
+        <div class="stat-header">// GLOBAL DEPLETION SUMMARY</div>
+        <div class="stat-row">
+            <div class="stat-line" id="sl1"><span class="stat-label">Oxygen Index</span><span class="stat-val">0.4%</span></div>
+            <div class="stat-line" id="sl2"><span class="stat-label">Freshwater</span><span class="stat-val">DEPLETED</span></div>
+            <div class="stat-line" id="sl3"><span class="stat-label">Population</span><span class="stat-val white">39.8M</span></div>
+            <div class="stat-line" id="sl4"><span class="stat-label">Est. Collapse</span><span class="stat-val">3 YRS</span></div>
+            <div class="stat-line" id="sl5"><span class="stat-label">Evacuees</span><span class="stat-val amber">2,400</span></div>
+        </div>
+    </div>
+
+    <div class="cin-scene" id="s3">
+        <div class="scene-num">LOG_03 / INTERCEPTED_COMMS</div>
+        <div class="broadcast">
+            <div class="broadcast-speaker" id="bs-speaker">Director Vladimir — Uplink Mars-1</div>
+            <div class="broadcast-text" id="bs-text"></div>
+        </div>
+    </div>
+
+    <div class="cin-scene" id="s4">
+        <div class="scene-num">LOG_04 / SUBJECT_IDENTIFICATION</div>
+        <div class="you-label">Carry the weight of the curse.</div>
+        <div class="you-name">THE<span>VOYAGER</span></div>
+        <div class="you-sub">Born into a broken world. Marked by an anomaly no one understands.<br><br>Not chosen. Not saved. <br>Just... <em>alive.</em></div>
+    </div>
+
+    <div class="cin-scene" id="s5">
+        <div class="scene-num">LOG_05 / MISSION_START</div>
+        <div class="main-title">SPACE<span>ODYSSEY</span></div>
+        <button class="enter-btn" id="enterBtn" onclick="enterGame()">Initialize Mission →</button>
+    </div>
+</div>
+
+<div id="dots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+</div>
+<button id="skip" onclick="skipIntro()">SKIP<span class="kbd-hint"> [ESC]</span></button>
+
+<script>
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+// Cursor Logic — only on pointer:fine devices
+const isTouch = window.matchMedia('(pointer: coarse)').matches;
+if (!isTouch) {
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx=0, my=0, rx=0, ry=0;
+    document.addEventListener('mousemove', e => { 
+        mx=e.clientX; my=e.clientY; 
+        cursor.style.left=mx+'px'; cursor.style.top=my+'px'; 
+    });
+    (function rLoop(){ 
+        rx += (mx-rx)*0.15; ry += (my-ry)*0.15; 
+        ring.style.left=rx+'px'; ring.style.top=ry+'px'; 
+        requestAnimationFrame(rLoop); 
+    })();
+}
+
+// Canvas Background
+const canvas=document.getElementById('bg'), ctx=canvas.getContext('2d');
+let W, H, stars=[];
+function resize(){ W=canvas.width=innerWidth; H=canvas.height=innerHeight; mkStars(); }
+function mkStars(){ stars=[]; for(let i=0;i<200;i++) stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5, ph:Math.random()*Math.PI*2}); }
+function draw(){
+    ctx.fillStyle = '#0a0505';
+    ctx.fillRect(0,0,W,H);
+    stars.forEach(s => {
+        let a = 0.2 + Math.abs(Math.sin(Date.now()*0.001 + s.ph))*0.8;
+        ctx.fillStyle = `rgba(212,201,184,${a})`;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill();
+    });
+    const ex=W*0.75, ey=H*0.4, er=Math.min(W,H)*0.25;
+    let g = ctx.createRadialGradient(ex,ey,er*0.8, ex,ey,er*1.2);
+    g.addColorStop(0, 'rgba(192,57,43,0.2)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(ex,ey,er*1.2,0,Math.PI*2); ctx.fill();
+    requestAnimationFrame(draw);
+}
+window.addEventListener('resize', resize);
+resize(); draw();
+
+// UI Logic
+let currentScene = 0;
+function setScene(n){
+    document.querySelectorAll('.cin-scene').forEach(s => s.classList.remove('active'));
+    document.getElementById(`s${n+1}`).classList.add('active');
+    document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('active', i===n));
+    currentScene = n;
+}
+
+async function typewrite(el, text, speed=40){
+    el.innerHTML = '';
+    const cur = document.createElement('span'); cur.className = 'tw-cursor';
+    el.appendChild(cur);
+    for(let i=0; i<text.length; i++){
+        if(text[i] === '<'){
+            let end = text.indexOf('>', i);
+            cur.insertAdjacentHTML('beforebegin', text.slice(i, end+1));
+            i = end;
+        } else {
+            cur.insertAdjacentText('beforebegin', text[i]);
+        }
+        await wait(speed);
+    }
+    cur.remove();
+}
+
+function flash(color='white', dur=200){
+    const f = document.getElementById('flash');
+    f.style.background = color;
+    f.style.transition = 'none';
+    f.style.opacity = '1';
+    setTimeout(() => { f.style.transition = 'opacity 0.8s ease'; f.style.opacity = '0'; }, dur);
+}
+
+// Reduce typewrite speed on mobile for better experience
+const twSpeed = isTouch ? 30 : 40;
+
+async function runIntro(){
+    await wait(800);
+    document.getElementById('barTop').classList.add('open-top');
+    document.getElementById('barBottom').classList.add('open-bottom');
+
+    // S1
+    setScene(0);
+    await wait(4500);
+    flash('rgba(192,57,43,0.2)', 100);
+
+    // S2
+    setScene(1);
+    for(let i=1; i<=5; i++){
+        const l = document.getElementById(`sl${i}`);
+        l.style.transition = 'all 0.8s ease-out';
+        l.style.opacity = '1';
+        l.style.transform = 'translateX(0)';
+        await wait(700);
+    }
+    await wait(3000);
+    flash('rgba(192,57,43,0.2)', 100);
+
+    // S3
+    setScene(2);
+    await wait(800);
+    const bt = document.getElementById('bs-text');
+    await typewrite(bt, `"The evacuation is a <em>tremendous success</em>. Our colonists will carry the legacy forward. As for the rest... <br><br><span class='red'>we won't carry the weight of your curses anymore!</span>"`, twSpeed);
+    await wait(3500);
+    
+    flash('rgba(232, 164, 48, 0.4)', 400);
+    await wait(100);
+    bt.innerHTML = '';
+    await typewrite(bt, `[SYSTEM OVERRIDE] <br> Day 277 of the Year 2133.`, twSpeed);
+    await wait(2000);
+
+    flash('rgba(192,57,43,0.2)', 200);
+    bt.innerHTML = '';
+    await typewrite(bt, `On that day the world changed. Billions of humans were killed - the cause of their death still remains a mystery even after thirty two years.`, twSpeed);
+    await wait(4000);
+    
+    flash('rgba(192,57,43,0.2)', 200);
+    bt.innerHTML = '';
+    await typewrite(bt, `Some believe it was a world war—one so devastating it erased the memories of every living soul. Others whisper of a supernatural force, something beyond human understanding that swept across the planet in a single, catastrophic moment. Scientists argue a more tangible cause: a barrage of meteorites striking Earth simultaneously, leaving nothing but destruction in their wake.`, twSpeed);
+    await wait(4000);
+
+    flash('rgba(192,57,43,0.2)', 200);
+    bt.innerHTML = '';
+    await typewrite(bt, `Yet many elders hold onto a darker belief—that the world was cursed on that fateful day. They claim that those born during and after the catastrophe carry that curse within them, forever marked as the Cursed Generation.`, twSpeed);
+    await wait(4000);
+    
+    flash('rgba(192,57,43,0.2)', 200);
+    bt.innerHTML = '';
+    await typewrite(bt, `You are one of them. You were deprived of the right to live by those of the higher class. You must live on...`, twSpeed);
+    await wait(4000);
+    
+    flash('rgba(192,57,43,0.2)', 200);
+
+    // S4
+    setScene(3);
+    await wait(5000);
+
+    // S5
+    setScene(4);
+}
+
+runIntro();
+
+function skipIntro() { window.location.href = "level1.html"; }
+function enterGame() { 
+    document.body.style.opacity = '0';
+    document.body.style.transition = 'opacity 1s';
+    setTimeout(() => window.location.href = "level1.html", 1000);
+}
+document.addEventListener('keydown', e => { 
+    if(e.key === 'Escape') skipIntro();
+    if(e.key === 'Enter' && currentScene === 4) enterGame();
+});
+</script>
+</body>
+</html>

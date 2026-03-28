@@ -771,6 +771,11 @@
 
 @media (max-width: 700px) {
 
+    .footer {
+        width: 100%;
+        border-radius: 0px;
+    }
+
     .footerTag {
         font-size: 1.4rem;
         padding-bottom: 0 20px 20px 20px;

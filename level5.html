@@ -151,13 +151,13 @@
     .survival-header {
         background:#000;
         border-bottom:1px solid #1a1a1a;
-        padding:clamp(8px, 2vw, 15px) clamp(12px, 3vw, 25px);
+        padding:8px 14px;
         display:flex;
         justify-content:space-between;
         align-items:center;
         flex-shrink:0;
-        flex-wrap:wrap;
-        gap:8px;
+        flex-wrap:nowrap;
+        gap:6px;
         position:sticky;
         top:0;
         z-index:50;
@@ -167,30 +167,33 @@
 
     .header-stats {
         display:flex;
-        gap:clamp(12px, 3vw, 25px);
-        flex-wrap:wrap;
+        gap:clamp(10px, 3vw, 25px);
+        flex-wrap:nowrap;
+        align-items:center;
     }
 
     .stat {
-        font-size:clamp(0.55rem, 1.5vw, 0.7rem);
+        font-size:clamp(0.5rem, 1.8vw, 0.7rem);
         color:#888;
-        letter-spacing:2px;
+        letter-spacing:1px;
+        white-space:nowrap;
     }
     .stat-value {
         font-family:'Bebas Neue';
-        font-size:clamp(1rem, 3vw, 1.6rem);
+        font-size:clamp(0.85rem, 3vw, 1.6rem);
         color:var(--glow);
     }
     .health-wrap {
         display:flex;
         align-items:center;
-        gap:8px;
+        gap:5px;
     }
     .health-bar-container {
-        width:clamp(70px, 15vw, 120px);
-        height:8px;
+        width:clamp(48px, 12vw, 120px);
+        height:6px;
         background:#111;
         border:1px solid #333;
+        flex-shrink:0;
     }
     .health-fill {
         height:100%;
@@ -198,10 +201,11 @@
         transition:width 0.3s;
     }
     .supply-bar {
-        width:clamp(70px, 15vw, 120px);
-        height:8px;
+        width:clamp(48px, 12vw, 120px);
+        height:6px;
         background:#111;
         border:1px solid #333;
+        flex-shrink:0;
     }
     .supply-fill {
         height:100%;
@@ -212,17 +216,17 @@
     /* ===== ADVISORY BANNER ===== */
     .advisory-banner {
         max-width:800px;
-        width:100%;
-        margin:clamp(16px, 3vh, 28px) auto clamp(0px, 1vh, 8px) auto;
+        width:calc(100% - 24px);
+        margin:12px auto 0 auto;
         background:linear-gradient(135deg, #0d0800 0%, #120a02 100%);
         border:1px solid rgba(243,156,18,0.4);
         border-left:3px solid var(--gold);
-        padding:clamp(12px, 2.5vw, 18px) clamp(14px, 3vw, 24px);
+        padding:10px 14px;
         position:relative;
         z-index:10;
         display:flex;
         align-items:flex-start;
-        gap:clamp(10px, 2vw, 16px);
+        gap:10px;
         overflow:hidden;
         max-height:200px;
         opacity:1;
@@ -239,34 +243,34 @@
         border-bottom-width:0;
     }
     .advisory-icon {
-        font-size:clamp(1rem, 3vw, 1.3rem);
+        font-size:1rem;
         flex-shrink:0;
-        margin-top:2px;
+        margin-top:1px;
         filter:drop-shadow(0 0 6px rgba(243,156,18,0.7));
     }
     .advisory-text {
-        font-size:clamp(0.7rem, 2vw, 0.82rem);
+        font-size:clamp(0.68rem, 1.8vw, 0.8rem);
         color:#c9a96e;
-        line-height:1.65;
-        letter-spacing:0.5px;
+        line-height:1.55;
+        letter-spacing:0;
     }
     .advisory-text strong {
         color:var(--gold);
         font-family:'Bebas Neue';
-        font-size:clamp(0.85rem, 2.5vw, 1rem);
+        font-size:clamp(0.82rem, 2vw, 1rem);
         letter-spacing:2px;
         display:block;
-        margin-bottom:4px;
+        margin-bottom:3px;
     }
 
     .event-panel {
         max-width:800px;
-        width:100%;
-        margin:clamp(14px, 3vh, 28px) auto;
+        width:calc(100% - 24px);
+        margin:12px auto 12px auto;
         background:#0a0a0a;
         border:1px solid #2a2a2a;
         border-top:3px solid var(--rust);
-        padding:clamp(20px, 4vw, 40px);
+        padding:clamp(16px, 4vw, 40px);
         box-shadow:0 20px 40px rgba(0,0,0,0.5);
         position:relative;
         z-index:10;
@@ -320,12 +324,12 @@
     /* ===== GLOSSARY PANEL ===== */
     .glossary-panel {
         max-width:800px;
-        width:100%;
+        width:calc(100% - 24px);
         margin:0 auto clamp(20px, 4vh, 36px) auto;
         background:#080808;
         border:1px solid #1e1e1e;
         border-top:2px solid rgba(0,242,255,0.35);
-        padding:clamp(16px, 3.5vw, 28px) clamp(16px, 3vw, 28px);
+        padding:clamp(14px, 3.5vw, 28px) clamp(14px, 3vw, 28px);
         position:relative;
         z-index:10;
     }
@@ -584,63 +588,34 @@
 
     /* ===== MOBILE-SPECIFIC TWEAKS ===== */
     @media (max-width: 480px) {
-        .choice-btn:hover {
-            transform: none;
-        }
-        .phase-label {
-            letter-spacing: 1px;
-            word-break: break-word;
-        }
-        .survival-header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 6px;
-        }
-        .header-left {
-            width: 100%;
-        }
-        .header-stats {
-            width: 100%;
-            justify-content: space-between;
-            gap: 8px;
-        }
-        .health-bar-container,
-        .supply-bar {
-            width: clamp(55px, 20vw, 85px);
-        }
-        .advisory-banner {
-            margin-left: 12px;
-            margin-right: 12px;
-            padding: 12px 12px;
-            gap: 8px;
-        }
-        .advisory-text {
-            font-size: 0.72rem;
-            letter-spacing: 0;
-        }
-        .glossary-grid {
-            grid-template-columns: 1fr;
-        }
-        .glossary-panel {
-            margin-left: 12px;
-            margin-right: 12px;
-            padding: 14px 12px;
-        }
-        .event-panel {
-            margin-left: 12px;
-            margin-right: 12px;
-            padding: 18px 14px;
-        }
-        .choice-btn {
-            padding: 12px 12px;
-            font-size: 0.78rem;
-        }
-        .glossary-item {
-            padding: 10px 10px;
-        }
-        .glossary-def {
-            font-size: 0.68rem;
-        }
+        .choice-btn:hover { transform: none; }
+        .phase-label { letter-spacing: 1px; word-break: break-word; }
+
+        /* Keep header horizontal, just tighter */
+        .survival-header { padding: 7px 10px; gap: 4px; }
+        .header-left .stat { font-size: 0.48rem; letter-spacing: 1px; }
+        .header-left .stat-value { font-size: 0.72rem; }
+        .stat { font-size: 0.48rem; letter-spacing: 1px; }
+        .stat-value { font-size: 0.85rem; }
+        .health-bar-container, .supply-bar { width: 44px; height: 5px; }
+        .health-wrap { gap: 4px; }
+
+        .advisory-banner { width: calc(100% - 20px); padding: 9px 11px; gap: 8px; margin-top: 10px; }
+        .advisory-text { font-size: 0.68rem; line-height: 1.5; }
+        .advisory-text strong { font-size: 0.78rem; margin-bottom: 2px; }
+
+        .event-panel { width: calc(100% - 20px); padding: 14px 13px; margin: 10px auto; }
+        .event-title { font-size: 1.25rem; margin-bottom: 10px; }
+        .event-desc { font-size: 0.78rem; margin-bottom: 14px; line-height: 1.65; }
+        .choices-area { gap: 9px; }
+        .choice-btn { padding: 11px 11px; font-size: 0.76rem; }
+
+        .glossary-panel { width: calc(100% - 20px); padding: 13px 12px; }
+        .glossary-grid { grid-template-columns: 1fr; gap: 8px; }
+        .glossary-item { padding: 9px 10px; }
+        .glossary-term { font-size: 0.76rem; }
+        .glossary-def { font-size: 0.66rem; }
+        .glossary-header { font-size: 0.82rem; }
     }
 
     @media (max-width: 360px) {
@@ -699,9 +674,9 @@
     /* Tablet */
     @media (min-width: 481px) and (max-width: 768px) {
         .advisory-banner,
-        .glossary-panel {
-            margin-left: clamp(12px, 4vw, 20px);
-            margin-right: clamp(12px, 4vw, 20px);
+        .glossary-panel,
+        .event-panel {
+            width: calc(100% - 32px);
         }
         .glossary-grid {
             grid-template-columns: repeat(2, 1fr);

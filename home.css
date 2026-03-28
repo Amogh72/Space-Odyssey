@@ -589,6 +589,11 @@
     .about-section {
         height: 500px;
     }
+
+    .footer {
+        width: 100%;
+        border-radius: 0;
+    }
 }
 
 @media (max-width: 768px) {

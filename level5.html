@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
 <title>Level 5 — The Red Planet | Mars Descent</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Crimson+Pro:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
 <style>
@@ -23,9 +23,9 @@
     html, body {
         background:var(--bg);
         color:var(--pale);
-        font-family:'Share Tech Mono';
+        font-family:'Share Tech Mono', monospace;
         height:100%;
-        min-height:100%;
+        width:100%;
         overflow-x:hidden;
     }
 
@@ -36,14 +36,15 @@
         min-height:100dvh;
     }
 
+    /* cinematic bars - thinner on mobile */
     .cinematic-bar {
         position:fixed;
         left:0;
         right:0;
-        height:10vh;
+        height:6vh;
         background:#000;
         z-index:200;
-        transition:height 1.8s cubic-bezier(0.7,0,0.2,1);
+        transition:height 1.2s cubic-bezier(0.7,0,0.2,1);
         pointer-events:none;
     }
     .bar-top { top:0; }
@@ -96,7 +97,7 @@
         align-items:center;
         text-align:center;
         padding:20px;
-        transition:opacity 2s ease;
+        transition:opacity 1.8s ease;
     }
     .cinematic-intro.hide {
         opacity:0;
@@ -104,62 +105,81 @@
     }
     .chapter-title {
         font-family:'Bebas Neue',sans-serif;
-        font-size:clamp(0.9rem, 4vw, 2.5rem);
-        letter-spacing:0.4em;
+        font-size: clamp(0.8rem, 5vw, 2rem);
+        letter-spacing: 0.3em;
         color:var(--rust);
-        margin-bottom:clamp(10px, 2vh, 20px);
+        margin-bottom: clamp(8px, 2vh, 20px);
     }
     .planet-name {
-        font-size:clamp(2.5rem, 14vw, 9rem);
+        font-size: clamp(2rem, 15vw, 7rem);
         font-family:'Bebas Neue';
         color:var(--glow);
-        text-shadow:0 0 40px rgba(255,107,53,0.6);
-        margin:clamp(10px, 2vh, 20px) 0;
-        letter-spacing:0.1em;
-        line-height:1;
+        text-shadow:0 0 30px rgba(255,107,53,0.5);
+        margin: clamp(8px, 2vh, 20px) 0;
+        letter-spacing:0.05em;
+        line-height:1.1;
+        word-break:keep-all;
     }
     .start-descent {
         background:transparent;
         border:2px solid var(--glow);
         color:var(--glow);
-        font-family:'Share Tech Mono';
-        font-size:clamp(0.8rem, 3vw, 1.2rem);
-        padding:clamp(10px, 2vh, 15px) clamp(20px, 5vw, 45px);
-        margin-top:clamp(25px, 5vh, 50px);
+        font-family:'Share Tech Mono', monospace;
+        font-size: clamp(0.7rem, 4vw, 1rem);
+        padding: clamp(10px, 2vh, 14px) clamp(20px, 6vw, 40px);
+        margin-top: clamp(20px, 5vh, 45px);
         cursor:pointer;
-        letter-spacing:clamp(2px, 1vw, 4px);
-        transition:0.4s;
+        letter-spacing: clamp(2px, 1.5vw, 4px);
+        transition:0.3s;
         white-space:nowrap;
         touch-action:manipulation;
+        border-radius: 2px;
     }
-    .start-descent:hover, .start-descent:active {
+    .start-descent:active {
         background:var(--glow);
         color:#000;
-        box-shadow:0 0 30px rgba(255,107,53,0.4);
+        transform: scale(0.97);
     }
 
-    /* ===== GLOSSARY BUTTON ===== */
-    .glossary-btn {
+    /* ===== BUTTONS (glossary + restart) ===== */
+    .glossary-btn, .restart-btn {
         position:fixed;
-        bottom:clamp(10px, 2vh, 20px);
-        left:clamp(10px, 2vw, 20px);
-        background:#1a1a1a;
-        border:1px solid var(--info);
-        color:var(--info);
-        padding:clamp(6px, 1vh, 8px) clamp(10px, 2vw, 16px);
-        font-size:clamp(0.6rem, 1.8vw, 0.7rem);
+        background:rgba(10,5,5,0.85);
+        backdrop-filter: blur(4px);
+        border:1px solid;
+        padding: clamp(6px, 1.8vh, 10px) clamp(12px, 3vw, 18px);
+        font-size: clamp(0.6rem, 2.2vw, 0.75rem);
         cursor:pointer;
         z-index:100;
-        font-family:'Share Tech Mono';
+        font-family:'Share Tech Mono', monospace;
         transition:0.2s;
         touch-action:manipulation;
         white-space:nowrap;
-        border-radius:2px;
+        border-radius: 24px;
+        letter-spacing: 0.5px;
+        font-weight: 500;
     }
-    .glossary-btn:hover, .glossary-btn:active {
-        background:var(--info);
+    .glossary-btn {
+        bottom: clamp(12px, 2vh, 20px);
+        left: clamp(12px, 2vw, 20px);
+        border-color: var(--info);
+        color: var(--info);
+    }
+    .restart-btn {
+        bottom: clamp(12px, 2vh, 20px);
+        right: clamp(12px, 2vw, 20px);
+        border-color: var(--rust);
+        color: var(--pale);
+    }
+    .glossary-btn:active, .restart-btn:active {
+        background: var(--info);
         color:#000;
         border-color:var(--info);
+    }
+    .restart-btn:active {
+        background: var(--rust);
+        border-color: var(--rust);
+        color: #fff;
     }
 
     /* ===== GLOSSARY PANEL ===== */
@@ -169,106 +189,106 @@
         left:0;
         right:0;
         bottom:0;
-        background:rgba(0,0,0,0.97);
-        backdrop-filter:blur(12px);
+        background:rgba(0,0,0,0.96);
+        backdrop-filter:blur(16px);
         z-index:500;
         display:flex;
         align-items:center;
         justify-content:center;
         opacity:0;
         visibility:hidden;
-        transition:opacity 0.3s ease, visibility 0.3s;
-        padding:20px;
+        transition:opacity 0.25s ease, visibility 0.25s;
+        padding:16px;
     }
     .glossary-panel.active {
         opacity:1;
         visibility:visible;
     }
     .glossary-content {
-        max-width:750px;
+        max-width: 90vw;
         width:100%;
-        max-height:85vh;
+        max-height: 85vh;
         background:#0a0505;
-        border:2px solid var(--info);
-        border-radius:4px;
+        border:1px solid var(--info);
+        border-radius: 12px;
         overflow-y:auto;
-        padding:clamp(20px, 4vw, 35px);
+        padding: clamp(16px, 5vw, 28px);
+        box-shadow: 0 20px 35px rgba(0,0,0,0.6);
     }
     .glossary-header {
         font-family:'Bebas Neue';
-        font-size:clamp(1.3rem, 5vw, 2rem);
+        font-size: clamp(1.2rem, 6vw, 1.9rem);
         color:var(--info);
-        letter-spacing:3px;
-        margin-bottom:20px;
+        letter-spacing:2px;
+        margin-bottom:18px;
         text-align:center;
         border-bottom:1px solid var(--info);
-        padding-bottom:12px;
+        padding-bottom:10px;
     }
     .glossary-term {
-        margin-bottom:18px;
-        border-left:2px solid var(--gold);
-        padding-left:15px;
+        margin-bottom: 18px;
+        border-left: 3px solid var(--gold);
+        padding-left: 14px;
     }
     .glossary-term h4 {
         font-family:'Bebas Neue';
-        font-size:clamp(0.95rem, 2.8vw, 1.2rem);
+        font-size: clamp(0.85rem, 3.5vw, 1.1rem);
         color:var(--glow);
-        margin-bottom:6px;
+        margin-bottom: 6px;
     }
     .glossary-term p {
-        font-size:clamp(0.72rem, 2vw, 0.82rem);
-        line-height:1.6;
+        font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+        line-height: 1.5;
         color:#bcafa2;
     }
     .close-glossary {
-        margin-top:20px;
+        margin-top: 20px;
         background:transparent;
         border:1px solid var(--info);
         color:var(--info);
-        padding:10px 25px;
-        font-family:'Share Tech Mono';
+        padding: 10px 20px;
+        font-family:'Share Tech Mono', monospace;
         font-size:0.8rem;
         cursor:pointer;
         width:100%;
+        border-radius: 40px;
         transition:0.2s;
     }
-    .close-glossary:hover {
+    .close-glossary:active {
         background:var(--info);
         color:#000;
     }
 
-    /* ===== TERM HIGHLIGHT ===== */
+    /* ===== TERM HIGHLIGHT & TOOLTIP ===== */
     .science-term {
         color: var(--info);
         border-bottom: 1px dashed var(--info);
         cursor: pointer;
         transition: color 0.2s, border-color 0.2s;
-        display: inline;
+        display: inline-block;
         position: relative;
-        z-index: 30;
-        pointer-events: auto;
+        touch-action: manipulation;
     }
-
-    .science-term:hover, .science-term:active {
+    .science-term:active {
         color: var(--glow);
         border-bottom-color: var(--glow);
     }
-
     .term-tooltip {
         position:fixed;
-        background:#1a1a1a;
-        border-left:3px solid var(--info);
-        padding:8px 12px;
-        max-width:280px;
-        width:max-content;
-        font-size:0.7rem;
-        line-height:1.4;
-        color:#bcafa2;
-        z-index:9999;
-        box-shadow:0 5px 20px rgba(0,0,0,0.7);
+        background:#111;
+        border-left: 4px solid var(--info);
+        padding: 8px 12px;
+        max-width: 260px;
+        width: auto;
+        font-size: 0.7rem;
+        line-height: 1.4;
+        color:#e0cfc0;
+        z-index: 10000;
+        box-shadow:0 8px 25px rgba(0,0,0,0.8);
         pointer-events:none;
-        font-family:'Share Tech Mono';
-        border-radius:2px;
+        font-family:'Share Tech Mono', monospace;
+        border-radius: 8px;
+        backdrop-filter: blur(4px);
     }
 
     /* ===== SURVIVAL PHASE ===== */
@@ -278,180 +298,162 @@
         flex-direction:column;
         position:relative;
         z-index:10;
-        min-height:100vh;
-        min-height:100dvh;
+        min-height: 100dvh;
     }
 
     .survival-header {
-        background:#000;
-        border-bottom:1px solid #1a1a1a;
-        padding:clamp(8px, 2vw, 15px) clamp(12px, 3vw, 25px);
+        background:rgba(0,0,0,0.92);
+        backdrop-filter: blur(8px);
+        border-bottom:1px solid #2a2a2a;
+        padding: clamp(8px, 2vh, 14px) clamp(12px, 4vw, 24px);
         display:flex;
         justify-content:space-between;
         align-items:center;
-        flex-shrink:0;
         flex-wrap:wrap;
-        gap:8px;
+        gap: 12px;
         position:sticky;
         top:0;
         z-index:50;
     }
-
     .header-left { flex-shrink:0; }
     .header-stats {
         display:flex;
-        gap:clamp(12px, 3vw, 25px);
+        gap: clamp(16px, 5vw, 32px);
         flex-wrap:wrap;
+        align-items: center;
     }
-
     .stat {
-        font-size:clamp(0.55rem, 1.5vw, 0.7rem);
-        color:#888;
-        letter-spacing:2px;
+        font-size: clamp(0.55rem, 2vw, 0.7rem);
+        color:#aaa;
+        letter-spacing: 1px;
+        margin-bottom: 2px;
     }
     .stat-value {
         font-family:'Bebas Neue';
-        font-size:clamp(1rem, 3vw, 1.6rem);
+        font-size: clamp(1rem, 3.8vw, 1.5rem);
         color:var(--glow);
+        line-height: 1;
     }
-    .health-wrap {
+    .health-wrap, .supply-wrap {
         display:flex;
         align-items:center;
-        gap:8px;
+        gap: 8px;
+        flex-wrap: wrap;
     }
-    .health-bar-container {
-        width:clamp(70px, 15vw, 120px);
-        height:8px;
-        background:#111;
-        border:1px solid #333;
+    .health-bar-container, .supply-bar {
+        width: clamp(80px, 25vw, 130px);
+        height: 10px;
+        background:#1a1a1a;
+        border-radius: 20px;
+        overflow: hidden;
     }
-    .health-fill {
+    .health-fill, .supply-fill {
         height:100%;
-        background:var(--rust);
-        transition:width 0.3s;
+        width:100%;
+        transition:width 0.25s ease;
     }
-    .supply-bar {
-        width:clamp(70px, 15vw, 120px);
-        height:8px;
-        background:#111;
-        border:1px solid #333;
-    }
-    .supply-fill {
-        height:100%;
-        background:var(--gold);
-        transition:width 0.3s;
-    }
+    .health-fill { background:var(--rust); }
+    .supply-fill { background:var(--gold); }
 
-    /* ===== CRITICAL WARNING NOTE ===== */
+    /* ===== CRITICAL WARNING ===== */
     .critical-warning {
-        background:rgba(192,57,43,0.15);
-        border-left:4px solid var(--warning);
-        border-right:1px solid rgba(243,156,18,0.3);
-        padding:clamp(12px, 2.5vw, 18px) clamp(15px, 3vw, 22px);
-        margin-bottom:clamp(20px, 3vh, 28px);
-        position:relative;
-        overflow:hidden;
-        transition:all 0.5s ease;
+        background:rgba(192,57,43,0.12);
+        border-left: 4px solid var(--warning);
+        border-radius: 8px;
+        padding: clamp(12px, 2.5vw, 18px);
+        margin-bottom: clamp(20px, 3vh, 28px);
+        transition: all 0.4s ease;
     }
     .critical-warning.hide-warning {
         opacity:0;
-        transform:translateY(-20px);
+        transform:translateY(-15px);
         margin-bottom:0;
         padding:0;
         height:0;
-        overflow:hidden;
         visibility:hidden;
-    }
-    .critical-warning::before {
-        content: "⚠";
-        position:absolute;
-        right:10px;
-        top:10px;
-        font-size:2rem;
-        opacity:0.1;
-        font-family:monospace;
     }
     .warning-title {
         font-family:'Bebas Neue';
-        font-size:clamp(1rem, 3vw, 1.2rem);
+        font-size: clamp(0.9rem, 4vw, 1.1rem);
         color:var(--warning);
-        letter-spacing:2px;
-        margin-bottom:8px;
+        letter-spacing:1px;
+        margin-bottom: 8px;
         display:flex;
         align-items:center;
-        gap:8px;
+        gap: 6px;
     }
     .warning-text {
-        font-size:clamp(0.75rem, 2.2vw, 0.85rem);
-        line-height:1.6;
-        color:#e0c8b0;
-    }
-    .warning-text strong {
-        color:var(--gold);
+        font-size: clamp(0.7rem, 2.5vw, 0.82rem);
+        line-height: 1.55;
+        color:#d8cbbe;
     }
     .warning-highlight {
         background:rgba(243,156,18,0.2);
         padding:2px 6px;
-        border-radius:2px;
-        font-family:monospace;
+        border-radius: 20px;
+        font-weight: bold;
     }
 
+    /* ===== EVENT PANEL (CORE) ===== */
     .event-panel {
-        max-width:800px;
+        max-width: 90vw;
         width:100%;
-        margin:clamp(15px, 3vh, 30px) auto;
-        background:#0a0a0a;
-        border:1px solid #2a2a2a;
-        border-top:3px solid var(--rust);
-        padding:clamp(20px, 4vw, 40px);
-        box-shadow:0 20px 40px rgba(0,0,0,0.5);
-        position:relative;
-        z-index:10;
+        margin: clamp(12px, 3vh, 25px) auto;
+        background:#0a0a0aee;
+        border:1px solid #2f2a2a;
+        border-top: 3px solid var(--rust);
+        border-radius: 20px;
+        padding: clamp(18px, 5vw, 32px);
+        box-shadow:0 15px 35px rgba(0,0,0,0.5);
     }
-
+    .phase-label {
+        font-size: clamp(0.5rem, 2.2vw, 0.65rem);
+        color:#aa9f8f;
+        letter-spacing: 2px;
+        margin-bottom: 12px;
+    }
     .event-title {
         font-family:'Bebas Neue';
-        font-size:clamp(1.3rem, 5vw, 2rem);
+        font-size: clamp(1.2rem, 7vw, 1.9rem);
         color:var(--glow);
-        letter-spacing:2px;
-        margin-bottom:15px;
-        line-height:1.1;
+        letter-spacing:1px;
+        margin-bottom: 12px;
+        line-height:1.2;
     }
     .event-desc {
-        font-size:clamp(0.8rem, 2.5vw, 0.95rem);
-        line-height:1.8;
-        color:#bcafa2;
-        margin-bottom:clamp(18px, 3vh, 30px);
+        font-size: clamp(0.75rem, 3.2vw, 0.92rem);
+        line-height: 1.65;
+        color:#cfc3b6;
+        margin-bottom: clamp(20px, 4vh, 32px);
     }
     .choices-area {
         display:flex;
         flex-direction:column;
-        gap:clamp(10px, 2vh, 15px);
+        gap: clamp(12px, 2.5vh, 18px);
     }
     .choice-btn {
-        background:#0f0a0a;
-        border:1px solid #444;
-        padding:clamp(12px, 2vh, 16px) clamp(14px, 3vw, 20px);
-        font-family:'Share Tech Mono';
-        font-size:clamp(0.78rem, 2.2vw, 0.95rem);
+        background:#0f0c0c;
+        border: 1px solid #4a3a3a;
+        border-radius: 14px;
+        padding: clamp(12px, 3vw, 16px) clamp(14px, 4vw, 22px);
+        font-family:'Share Tech Mono', monospace;
+        font-size: clamp(0.72rem, 2.8vw, 0.9rem);
         color:var(--pale);
         cursor:pointer;
         text-align:left;
-        transition:border-color 0.2s, background 0.2s, transform 0.2s;
-        line-height:1.5;
+        transition: all 0.2s ease;
+        line-height:1.45;
         touch-action:manipulation;
         width:100%;
-        position: relative;
     }
-    .choice-btn:hover, .choice-btn:active {
+    .choice-btn:active {
         border-color:var(--glow);
-        background:#1a0f0f;
-        transform:translateX(5px);
+        background:#2c1810;
+        transform: scale(0.98);
     }
-    .choice-btn.disabled, .choice-btn:disabled {
+    .choice-btn.disabled {
         opacity:0.5;
-        cursor:not-allowed;
-        transform:none;
+        pointer-events:none;
     }
 
     /* ===== REFUGEE SECTION ===== */
@@ -459,334 +461,192 @@
         display:none;
         flex:1;
         overflow-y:auto;
-        padding:clamp(20px, 4vw, 40px) clamp(12px, 3vw, 20px);
-        position:relative;
+        padding: clamp(16px, 4vw, 30px) clamp(12px, 4vw, 24px);
         z-index:10;
-        -webkit-overflow-scrolling: touch;
     }
     .camp-card {
-        max-width:800px;
+        max-width: 92vw;
         width:100%;
         margin:0 auto;
-        background:#0a0a0a;
-        border:1px solid #2a2a2a;
-        border-top:3px solid var(--gold);
-        padding:clamp(22px, 5vw, 45px);
+        background:#0a0808;
+        border:1px solid #3a2c28;
+        border-top: 4px solid var(--gold);
+        border-radius: 24px;
+        padding: clamp(20px, 6vw, 38px);
+        backdrop-filter: blur(2px);
     }
     .dialogue {
-        font-size:clamp(0.85rem, 2.5vw, 1rem);
-        line-height:1.9;
-        color:#bcafa2;
-        margin-bottom:clamp(16px, 2.5vh, 25px);
-        font-family:'Crimson Pro',serif;
-    }
-    .dialogue strong {
-        color:var(--glow);
-        font-family:'Share Tech Mono';
-        letter-spacing:1px;
+        font-size: clamp(0.8rem, 3.5vw, 0.95rem);
+        line-height: 1.75;
+        color:#cbc0b2;
+        margin-bottom: 20px;
+        font-family:'Crimson Pro', serif;
     }
     .grave-marker {
-        margin:clamp(16px, 2.5vh, 25px) 0;
-        padding:clamp(14px, 2.5vw, 20px);
-        background:#0c0705;
-        border-left:3px solid var(--rust);
-        font-size:clamp(0.78rem, 2.2vw, 0.9rem);
-        line-height:1.7;
-        color:#9a8a7a;
+        margin: 18px 0;
+        padding: 14px 16px;
+        background:#130c08;
+        border-left: 4px solid var(--rust);
+        border-radius: 12px;
+        font-size: clamp(0.74rem, 3vw, 0.85rem);
+        line-height: 1.65;
+        color:#b6a48f;
     }
     .final-message {
-        margin-top:clamp(22px, 3.5vh, 35px);
-        padding-top:clamp(14px, 2vh, 20px);
-        border-top:1px dashed #444;
+        margin-top: 25px;
+        padding-top: 18px;
+        border-top: 1px dashed #5e4b3b;
         text-align:center;
-        font-size:clamp(0.75rem, 2vw, 0.85rem);
-        color:#8c7b6b;
+        font-size: clamp(0.7rem, 2.5vw, 0.8rem);
     }
     .end-btn {
         background:var(--rust);
-        border:none;
-        padding:clamp(10px, 2vh, 14px) clamp(18px, 4vw, 30px);
-        margin-top:clamp(22px, 3.5vh, 35px);
+        border: none;
+        padding: 14px 18px;
+        margin-top: 28px;
         font-family:'Bebas Neue';
-        font-size:clamp(1.1rem, 4vw, 1.6rem);
+        font-size: clamp(1rem, 6vw, 1.5rem);
         color:#000;
         cursor:pointer;
         width:100%;
-        transition:0.3s;
-        letter-spacing:2px;
-        touch-action:manipulation;
+        transition: 0.2s;
+        letter-spacing: 2px;
+        border-radius: 60px;
+        font-weight: bold;
     }
-    .end-btn:hover, .end-btn:active {
+    .end-btn:active {
         background:var(--glow);
-        letter-spacing:4px;
+        letter-spacing: 3px;
+        transform: scale(0.98);
     }
 
-    ::-webkit-scrollbar { width:4px; }
-    ::-webkit-scrollbar-track { background:#000; }
-    ::-webkit-scrollbar-thumb { background:var(--rust); }
-
-    .phase-label {
-        font-size:clamp(0.55rem, 1.5vw, 0.7rem);
-        color:#666;
-        letter-spacing:3px;
-        margin-bottom:8px;
-    }
-
-    .restart-btn {
-        position:fixed;
-        bottom:clamp(10px, 2vh, 20px);
-        right:clamp(10px, 2vw, 20px);
-        background:#1a1a1a;
-        border:1px solid var(--rust);
-        color:var(--pale);
-        padding:clamp(6px, 1vh, 8px) clamp(10px, 2vw, 16px);
-        font-size:clamp(0.6rem, 1.8vw, 0.7rem);
-        cursor:pointer;
-        z-index:100;
-        font-family:'Share Tech Mono';
-        transition:0.2s;
-        touch-action:manipulation;
-        white-space:nowrap;
-    }
-    .restart-btn:hover, .restart-btn:active {
-        border-color:var(--glow);
-        color:var(--glow);
-    }
-
-    /* ===== MODAL ===== */
+    /* ===== MODAL SYSTEM ===== */
     .modal-overlay {
         position:fixed;
         inset:0;
-        background:rgba(0,0,0,0.95);
-        backdrop-filter:blur(8px);
+        background:rgba(0,0,0,0.94);
+        backdrop-filter:blur(10px);
         z-index:1000;
         display:flex;
         align-items:center;
         justify-content:center;
-        padding:clamp(12px, 3vw, 20px);
+        padding: 16px;
         opacity:0;
         visibility:hidden;
-        transition:opacity 0.3s ease, visibility 0.3s;
+        transition:opacity 0.2s ease, visibility 0.2s;
     }
     .modal-overlay.active {
         opacity:1;
         visibility:visible;
     }
     .modal-container {
-        max-width:500px;
+        max-width: 85vw;
         width:100%;
-        background:#0a0505;
-        border:2px solid;
-        animation:modalGlow 0.3s ease-out;
-        max-height:90vh;
-        overflow-y:auto;
+        background:#0c0706;
+        border: 2px solid;
+        border-radius: 32px;
+        overflow: hidden;
+        animation:modalGlow 0.25s ease-out;
     }
     @keyframes modalGlow {
-        from { transform:scale(0.9); opacity:0; }
+        from { transform:scale(0.92); opacity:0; }
         to { transform:scale(1); opacity:1; }
     }
     .modal-header {
-        padding:clamp(14px, 2.5vw, 20px);
-        border-bottom:1px solid;
+        padding: clamp(14px, 4vw, 22px);
+        border-bottom: 1px solid;
         font-family:'Bebas Neue';
-        font-size:clamp(1.1rem, 4vw, 1.8rem);
-        letter-spacing:3px;
+        font-size: clamp(1rem, 5vw, 1.6rem);
         text-align:center;
         background:#0a0505;
     }
     .modal-body {
-        padding:clamp(18px, 3.5vw, 30px);
-        font-size:clamp(0.78rem, 2.2vw, 0.9rem);
-        line-height:1.7;
-        color:#bcafa2;
+        padding: clamp(18px, 5vw, 28px);
+        font-size: clamp(0.75rem, 3vw, 0.9rem);
+        line-height: 1.6;
+        color:#cfc3b6;
         text-align:center;
     }
     .modal-footer {
-        padding:clamp(14px, 2.5vw, 20px);
+        padding: clamp(12px, 3vw, 20px);
         display:flex;
         justify-content:center;
-        gap:clamp(8px, 2vw, 15px);
+        gap: 12px;
         border-top:1px solid rgba(192,57,43,0.3);
         flex-wrap:wrap;
     }
     .modal-btn {
         background:transparent;
-        border:1px solid;
-        padding:clamp(8px, 1.5vh, 10px) clamp(14px, 3vw, 28px);
-        font-family:'Share Tech Mono';
-        font-size:clamp(0.65rem, 1.8vw, 0.8rem);
+        border:1px solid var(--rust);
+        padding: 10px 22px;
+        border-radius: 60px;
+        font-family:'Share Tech Mono', monospace;
+        font-size: clamp(0.65rem, 2.2vw, 0.8rem);
         cursor:pointer;
         transition:0.2s;
-        letter-spacing:2px;
-        touch-action:manipulation;
+        letter-spacing:1px;
     }
     .modal-btn.primary {
         background:var(--rust);
         border-color:var(--rust);
         color:#000;
     }
-    .modal-btn.primary:hover, .modal-btn.primary:active {
+    .modal-btn.primary:active {
         background:var(--glow);
+        transform: scale(0.96);
     }
 
-    /* =============================================
-       RESPONSIVE BREAKPOINTS
-       xs  < 360px   (tiny phones)
-       sm  360–480px (phones)
-       md  481–768px (large phones / small tablets)
-       lg  769–1024px (tablets)
-       xl  > 1024px  (desktop)
-    ============================================= */
-
-    /* --- PHASE LABEL --- */
-    .phase-label {
-        font-size: clamp(0.5rem, 1.8vw, 0.7rem);
-        word-break: break-word;
-    }
-
-    /* --- SURVIVAL HEADER --- */
-    @media (max-width: 480px) {
+    /* ===== RESPONSIVE PERFECTION ===== */
+    @media (max-width: 520px) {
         .survival-header {
             flex-direction: column;
-            align-items: flex-start;
-            padding: 10px 12px;
-            gap: 6px;
+            align-items: stretch;
         }
         .header-stats {
-            width: 100%;
             justify-content: space-between;
-            gap: 8px;
+            width: 100%;
         }
-        .health-bar-container,
-        .supply-bar {
-            width: clamp(60px, 28vw, 100px);
+        .health-wrap, .supply-wrap {
+            justify-content: space-between;
+            width: 100%;
         }
-        .stat { font-size: 0.6rem; letter-spacing: 1px; }
-        .stat-value { font-size: 0.9rem !important; }
-    }
-
-    /* Even smaller phones */
-    @media (max-width: 360px) {
-        .health-bar-container,
-        .supply-bar { width: 55px; }
-        .health-wrap { gap: 5px; }
-    }
-
-    /* --- EVENT PANEL --- */
-    @media (max-width: 600px) {
         .event-panel {
-            margin: 10px 10px;
-            padding: 16px 14px;
-            border-top-width: 2px;
+            max-width: 94vw;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 18px 14px;
         }
-        .event-title { font-size: clamp(1.1rem, 6vw, 1.5rem); margin-bottom: 10px; }
-        .event-desc  { font-size: clamp(0.78rem, 3.5vw, 0.9rem); line-height: 1.7; margin-bottom: 16px; }
-        .choices-area { gap: 10px; }
-        .choice-btn {
-            padding: 12px 12px;
-            font-size: clamp(0.75rem, 3.2vw, 0.9rem);
+        .glossary-btn, .restart-btn {
+            padding: 6px 12px;
+            font-size: 0.6rem;
         }
-        .choice-btn:hover { transform: none; } /* avoid shift on small touch screens */
-        .choice-btn:active { transform: translateX(3px); }
-    }
-
-    @media (max-width: 360px) {
-        .event-panel { margin: 8px 6px; padding: 14px 10px; }
-        .choice-btn  { padding: 10px 10px; font-size: 0.72rem; }
-    }
-
-    /* --- CRITICAL WARNING --- */
-    @media (max-width: 480px) {
-        .critical-warning { padding: 12px 12px; }
-        .warning-title    { font-size: 0.95rem; }
-        .warning-text     { font-size: 0.75rem; line-height: 1.5; }
-    }
-
-    /* --- FIXED BOTTOM BUTTONS (glossary + restart) ---
-       Stack them when both visible so they don't overlap */
-    @media (max-width: 480px) {
-        .glossary-btn {
-            bottom: 52px;   /* sit above restart button */
-            left: 10px;
-            font-size: 0.62rem;
-            padding: 7px 10px;
-        }
-        .restart-btn {
-            bottom: 10px;
-            right: 10px;
-            font-size: 0.62rem;
-            padding: 7px 10px;
-        }
-    }
-
-    /* On very wide screens keep buttons from getting too big */
-    @media (min-width: 1200px) {
-        .glossary-btn, .restart-btn { font-size: 0.75rem; padding: 9px 18px; }
-    }
-
-    /* --- TOOLTIP --- */
-    @media (max-width: 480px) {
-        .term-tooltip {
-            font-size: 0.65rem;
-            max-width: calc(100vw - 24px);
-            padding: 7px 10px;
-        }
-    }
-
-    /* --- MODAL --- */
-    @media (max-width: 480px) {
-        .modal-overlay { padding: 10px; align-items: flex-end; }
-        .modal-container { max-height: 80vh; border-radius: 4px 4px 0 0; }
-        .modal-header { font-size: 1.1rem; padding: 14px; letter-spacing: 2px; }
-        .modal-body   { font-size: 0.8rem; padding: 16px; }
-        .modal-footer { padding: 12px; gap: 8px; }
-        .modal-btn    { font-size: 0.72rem; padding: 10px 18px; width: 100%; text-align: center; }
-    }
-
-    /* --- GLOSSARY PANEL --- */
-    @media (max-width: 480px) {
-        .glossary-panel   { padding: 0; align-items: flex-end; }
-        .glossary-content {
-            max-height: 88vh;
-            border-radius: 4px 4px 0 0;
+        .glossary-btn { bottom: 12px; left: 12px; }
+        .restart-btn { bottom: 12px; right: 12px; }
+        .camp-card {
             padding: 20px 16px;
         }
-        .glossary-header  { font-size: 1.2rem; }
-        .glossary-term h4 { font-size: 0.9rem; }
-        .glossary-term p  { font-size: 0.73rem; }
-        .close-glossary   { font-size: 0.75rem; padding: 10px; }
+        .choice-btn {
+            font-size: 0.74rem;
+            padding: 12px 14px;
+        }
+        .critical-warning .warning-text br { display: none; }
     }
 
-    /* --- REFUGEE / CAMP CARD --- */
-    @media (max-width: 600px) {
-        .refugee-section { padding: 14px 10px; }
-        .camp-card        { padding: 18px 14px; }
-        .dialogue         { font-size: clamp(0.82rem, 3.5vw, 0.95rem); line-height: 1.8; }
-        .grave-marker     { font-size: clamp(0.74rem, 3vw, 0.85rem); padding: 12px 12px; }
-        .end-btn          { font-size: clamp(1rem, 5vw, 1.4rem); letter-spacing: 1px; }
-        .final-message    { font-size: 0.75rem; }
+    @media (max-width: 380px) {
+        .event-title { font-size: 1.1rem; }
+        .health-bar-container, .supply-bar { width: 70px; }
+        .stat-value { font-size: 0.9rem; }
     }
 
-    /* --- CINEMATIC INTRO --- */
-    @media (max-width: 360px) {
-        .planet-name   { font-size: clamp(2rem, 16vw, 3.5rem); }
-        .start-descent { font-size: 0.78rem; padding: 10px 20px; letter-spacing: 2px; }
+    /* wide spacing for tablets */
+    @media (min-width: 768px) {
+        .event-panel { max-width: 720px; }
+        .camp-card { max-width: 680px; }
+        .glossary-content { max-width: 620px; }
     }
-
-    /* --- TABLET tweaks (481–768) --- */
-    @media (min-width: 481px) and (max-width: 768px) {
-        .event-panel  { margin: 15px 16px; }
-        .choice-btn   { font-size: 0.85rem; }
-        .survival-header { flex-wrap: nowrap; }
-        .glossary-btn { font-size: 0.65rem; }
-        .restart-btn  { font-size: 0.65rem; }
-    }
-
-    /* --- Large tablet / small desktop (769–1024) --- */
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .event-panel  { max-width: 720px; }
-        .camp-card    { max-width: 720px; }
-    }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background:#1a0a0a; border-radius: 10px;}
+    ::-webkit-scrollbar-thumb { background:var(--rust); border-radius: 10px;}
 </style>
 </head>
 <body>
@@ -807,44 +667,38 @@
         <div class="survival-header">
             <div class="header-left">
                 <div class="stat">MARS SURFACE</div>
-                <div class="stat-value" style="font-size:clamp(0.7rem, 2vw, 1rem);">SURVIVAL PROTOCOL</div>
+                <div class="stat-value" style="font-size:clamp(0.65rem, 2.5vw, 0.9rem);">SURVIVAL PROTOCOL</div>
             </div>
             <div class="header-stats">
-                <div>
-                    <div class="stat">INTEGRITY</div>
-                    <div class="health-wrap">
-                        <div class="health-bar-container"><div class="health-fill" id="healthFill" style="width:100%"></div></div>
-                        <div class="stat-value" id="healthPercent" style="font-size:clamp(0.8rem, 2vw, 1rem);">100%</div>
+                <div class="health-wrap">
+                    <div>
+                        <div class="stat">INTEGRITY</div>
+                        <div class="stat-value" id="healthPercent">100%</div>
                     </div>
+                    <div class="health-bar-container"><div class="health-fill" id="healthFill" style="width:100%"></div></div>
                 </div>
-                <div>
-                    <div class="stat">SUPPLIES</div>
-                    <div class="health-wrap">
-                        <div class="supply-bar"><div class="supply-fill" id="supplyFill" style="width:100%"></div></div>
-                        <div class="stat-value" id="supplyPercent" style="font-size:clamp(0.8rem, 2vw, 1rem);">100%</div>
+                <div class="supply-wrap">
+                    <div>
+                        <div class="stat">SUPPLIES</div>
+                        <div class="stat-value" id="supplyPercent">100%</div>
                     </div>
+                    <div class="supply-bar"><div class="supply-fill" id="supplyFill" style="width:100%"></div></div>
                 </div>
             </div>
         </div>
         <div class="event-panel" id="eventPanel">
             <div class="phase-label">// MARS HAZARD PROTOCOL // SURVIVAL LOG</div>
-            
             <div class="critical-warning" id="criticalWarning">
-                <div class="warning-title">
-                    <span>⚠</span> CRITICAL SURVIVAL NOTICE
-                </div>
+                <div class="warning-title"><span>⚠</span> CRITICAL SURVIVAL NOTICE</div>
                 <div class="warning-text">
-                    <strong>Every choice you make will cost you — either INTEGRITY or SUPPLIES (or both).</strong><br><br>
-                    There is no "perfect" option that costs nothing. Mars is unforgiving. Your goal is to <strong class="warning-highlight">MINIMIZE THE DAMAGE</strong> and keep both bars above zero until you reach the refugee camp.<br><br>
-                    <span style="color:var(--gold);">▸ Some choices preserve supplies but damage your body</span><br>
-                    <span style="color:var(--info);">▸ Others protect your health but consume precious resources</span><br>
-                    <span style="color:var(--warning);">▸ Balance is survival. One resource hitting zero means death.</span><br><br>
-                    <strong>Read each option carefully. Think ahead. You have 6 challenges to survive.</strong>
+                    <strong>Every choice costs INTEGRITY or SUPPLIES (or both).</strong> No perfect option — Mars is unforgiving.<br>
+                    ▸ <span style="color:var(--gold);">Preserve supplies → body damage</span> &nbsp;|&nbsp; 
+                    ▸ <span style="color:var(--info);">Protect health → consumes resources</span><br>
+                    <strong class="warning-highlight">Balance both. Zero = death. You have 6 challenges.</strong>
                 </div>
             </div>
-            
             <div class="event-title" id="eventTitle">ATMOSPHERIC ENTRY</div>
-            <div class="event-desc" id="eventDesc">Heat shield glowing. The thin air screams past. You brace for impact.</div>
+            <div class="event-desc" id="eventDesc">Heat shield glowing. The thin air screams past.</div>
             <div class="choices-area" id="choicesArea"></div>
         </div>
     </div>
@@ -854,466 +708,213 @@
     </div>
 </div>
 
-<button class="glossary-btn" id="glossaryBtn">📖 MARS FIELD GUIDE</button>
-<button class="restart-btn" id="restartBtn" onclick="location.reload()">⟳ RESTART</button>
+<button class="glossary-btn" id="glossaryBtn">📖 MARS GUIDE</button>
+<button class="restart-btn" id="restartBtn">⟳ RESTART</button>
 
-<!-- Glossary Panel -->
 <div id="glossaryPanel" class="glossary-panel">
     <div class="glossary-content">
-        <div class="glossary-header">📖 MARS SURVIVAL FIELD GUIDE</div>
-        
-        <div class="glossary-term"><h4>🌡️ THERMAL REGULATOR</h4><p>Device maintaining suit temperature. Mars ranges from -125°C to 20°C. Failure = death within hours.</p></div>
-        <div class="glossary-term"><h4>🌪️ DUST STORM</h4><p>Planet-wide storms lasting months. Dust is toxic (perchlorates) and electrostatically charged.</p></div>
-        <div class="glossary-term"><h4>☢️ RADIATION / CME</h4><p>Mars lacks magnetic field. Solar flares (CMEs) deliver lethal radiation without shielding.</p></div>
-        <div class="glossary-term"><h4>💨 CO₂ SCRUBBER</h4><p>Removes CO₂ from air. Mars' atmosphere is 95% CO₂ — without it, you suffocate.</p></div>
-        <div class="glossary-term"><h4>🧊 WATER RECYCLER</h4><p>Reclaims moisture from breath/sweat. Without it, you need 3-5L water daily.</p></div>
-        <div class="glossary-term"><h4>⚠️ MARTIAN GRAVITY</h4><p>38% of Earth's. Causes muscle/bone loss. Movement feels different.</p></div>
-        <div class="glossary-term"><h4>🕳️ LAVA TUBE</h4><p>Natural underground tunnels formed by ancient lava flows. Provide natural radiation shielding and temperature stability.</p></div>
-        <div class="glossary-term"><h4>🧲 MAGNETIC DEFLECTOR</h4><p>Emergency shield that creates artificial magnetic field to deflect charged solar particles. Extremely power-hungry.</p></div>
-        <div class="glossary-term"><h4>💊 ANTI-RADIATION MEDS</h4><p>Pharmaceuticals containing potassium iodide and radioprotective compounds. Mitigates cellular damage from radiation exposure.</p></div>
-        <div class="glossary-term"><h4>⛏️ REGOLITH</h4><p>Loose Martian soil. Sharp, abrasive, contains toxic perchlorates. Damages equipment and skin.</p></div>
-        <div class="glossary-term"><h4>🏜️ SUBSURFACE ICE</h4><p>Water ice buried beneath Martian soil. Critical resource for drinking water and fuel production.</p></div>
-        <div class="glossary-term"><h4>🔴 WHY MARS IS RED</h4><p>Iron oxide — rust. Surface oxidized iron gives the red color.</p></div>
-        
-        <button class="close-glossary" id="closeGlossaryBtn">CLOSE FIELD GUIDE</button>
+        <div class="glossary-header">📖 MARS SURVIVAL GUIDE</div>
+        <div class="glossary-term"><h4>🌡️ THERMAL REGULATOR</h4><p>Maintains suit temperature. Mars -125°C to 20°C.</p></div>
+        <div class="glossary-term"><h4>🌪️ DUST STORM</h4><p>Planet-wide storms. Toxic perchlorate dust.</p></div>
+        <div class="glossary-term"><h4>☢️ RADIATION / CME</h4><p>No magnetic field → lethal solar flares.</p></div>
+        <div class="glossary-term"><h4>💨 CO₂ SCRUBBER</h4><p>Removes CO₂; atmosphere is 95% CO₂.</p></div>
+        <div class="glossary-term"><h4>🧊 WATER RECYCLER</h4><p>Reclaims moisture. Vital for survival.</p></div>
+        <div class="glossary-term"><h4>🕳️ LAVA TUBE</h4><p>Natural shelter against radiation.</p></div>
+        <div class="glossary-term"><h4>🧲 MAGNETIC DEFLECTOR</h4><p>Emergency shield, power-hungry.</p></div>
+        <div class="glossary-term"><h4>💊 ANTI-RADIATION MEDS</h4><p>Mitigates cellular damage.</p></div>
+        <button class="close-glossary" id="closeGlossaryBtn">CLOSE GUIDE</button>
     </div>
 </div>
 
-<div id="customModal" class="modal-overlay">
-    <div class="modal-container" id="modalContainer">
-        <div class="modal-header" id="modalHeader">⚠ SYSTEM ALERT</div>
-        <div class="modal-body" id="modalBody">Message</div>
-        <div class="modal-footer" id="modalFooter"></div>
-    </div>
-</div>
-
-<!-- Shared tooltip element — lives outside buttons, no pointer-events issues -->
+<div id="customModal" class="modal-overlay"><div class="modal-container"><div class="modal-header" id="modalHeader">⚠ ALERT</div><div class="modal-body" id="modalBody"></div><div class="modal-footer" id="modalFooter"></div></div></div>
 <div class="term-tooltip" id="termTooltip" style="display:none;"></div>
 
 <script>
-    // ==================== GLOSSARY SYSTEM ====================
+    // Glossary & Tooltip (optimized for mobile)
     const glossaryBtn = document.getElementById('glossaryBtn');
     const glossaryPanel = document.getElementById('glossaryPanel');
-    const closeGlossaryBtn = document.getElementById('closeGlossaryBtn');
-    
-    glossaryBtn.addEventListener('click', () => {
-        glossaryPanel.classList.add('active');
-    });
-    
-    closeGlossaryBtn.addEventListener('click', () => {
-        glossaryPanel.classList.remove('active');
-    });
-    
-    glossaryPanel.addEventListener('click', (e) => {
-        if(e.target === glossaryPanel) {
-            glossaryPanel.classList.remove('active');
-        }
-    });
-    
-    // ==================== TERM HIGHLIGHTING ====================
+    const closeGlossary = document.getElementById('closeGlossaryBtn');
+    glossaryBtn.addEventListener('click', () => glossaryPanel.classList.add('active'));
+    closeGlossary.addEventListener('click', () => glossaryPanel.classList.remove('active'));
+    glossaryPanel.addEventListener('click', (e) => { if(e.target === glossaryPanel) glossaryPanel.classList.remove('active'); });
+
     const scienceTerms = {
-        'thermal regulator': 'Device maintaining suit temperature. Mars ranges from -125°C to 20°C.',
-        'dust storm': 'Planet-wide storms lasting months. Dust is toxic and electrostatically charged.',
-        'perchlorate': 'Toxic salts in Martian soil. Damages lungs and equipment.',
-        'radiation': 'Mars lacks magnetic field. Surface radiation 40-50x higher than Earth.',
-        'cme': 'Coronal Mass Ejection — solar flare. Lethal without shielding on Mars.',
+        'thermal regulator': 'Device maintaining suit temperature. Mars -125°C to 20°C.',
+        'dust storm': 'Planet-wide storms. Dust is toxic and electrostatically charged.',
+        'perchlorate': 'Toxic salts in Martian soil.',
+        'radiation': 'Mars lacks magnetic field. Surface radiation 40-50x higher.',
+        'cme': 'Coronal Mass Ejection — solar flare. Lethal without shielding.',
         'co₂ scrubber': 'Removes CO₂ from air. Mars atmosphere is 95% CO₂.',
-        'oxygen recycler': 'Reclaims oxygen from CO₂. Critical for survival.',
-        'water recycler': 'Reclaims moisture from breath and waste.',
+        'lava tube': 'Natural underground tunnels from ancient lava.',
+        'magnetic deflector': 'Emergency shield creating artificial magnetic field.',
+        'anti-radiation meds': 'Medications that mitigate cellular damage.',
         'subsurface ice': 'Water ice buried beneath Martian soil.',
-        'regolith': 'Loose Martian soil. Sharp, abrasive, toxic.',
-        'martian gravity': 'Only 38% of Earth\'s gravity.',
-        'lava tube': 'Natural underground tunnels from ancient lava. Provide radiation shielding.',
-        'magnetic deflector': 'Emergency shield creating artificial magnetic field. Power-hungry.',
-        'anti-radiation meds': 'Medications that mitigate cellular damage from radiation.',
-        'heat shield': 'Protects craft during atmospheric entry. Temperatures reach 2000°C.'
+        'regolith': 'Loose Martian soil. Sharp, abrasive, toxic.'
     };
-    
     function highlightTerms(element) {
         if(!element) return;
         let html = element.innerHTML;
-        for(const [term, definition] of Object.entries(scienceTerms)) {
-            const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const regex = new RegExp(`(?<![\\w-])(${escaped})(?![\\w-])`, 'gi');
-            html = html.replace(regex, match =>
-                `<span class="science-term" data-def="${definition.replace(/"/g, '&quot;')}">${match}</span>`
-            );
+        for(let [term, def] of Object.entries(scienceTerms)) {
+            let regex = new RegExp(`(?<![\\w-])(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})(?![\\w-])`, 'gi');
+            html = html.replace(regex, match => `<span class="science-term" data-def="${def.replace(/"/g, '&quot;')}">${match}</span>`);
         }
         element.innerHTML = html;
     }
-
-    // ==================== SINGLE SHARED TOOLTIP ====================
     const tooltip = document.getElementById('termTooltip');
-    let tooltipTimer = null;
-
-    function showTooltip(termEl, clientX, clientY) {
-        const definition = termEl.getAttribute('data-def');
-        if(!definition) return;
-        tooltip.innerHTML = `<strong style="color:var(--info);">📖 ${termEl.innerText}</strong><br>${definition}`;
-
-        const pad = 10;
-        const vw  = window.innerWidth;
-        const vh  = window.innerHeight;
-        const maxW = Math.min(280, vw - 2 * pad);
-        tooltip.style.maxWidth = maxW + 'px';
-        tooltip.style.left = '0px';
-        tooltip.style.top  = '0px';
+    let tooltipTimer;
+    function showTooltip(el, x, y) {
+        let def = el.getAttribute('data-def');
+        if(!def) return;
+        tooltip.innerHTML = `<strong style="color:var(--info);">📖 ${el.innerText}</strong><br>${def}`;
         tooltip.style.display = 'block';
-
-        // Read real rendered size
-        const tw = tooltip.offsetWidth;
-        const th = tooltip.offsetHeight;
-
-        // Prefer right of cursor, flip left if needed
-        let x = clientX + 15;
-        if(x + tw > vw - pad) x = clientX - tw - 10;
-        x = Math.max(pad, Math.min(x, vw - tw - pad));
-
-        // Prefer above cursor, flip below if needed
-        let y = clientY - th - 10;
-        if(y < pad) y = clientY + 20;
-        y = Math.max(pad, Math.min(y, vh - th - pad));
-
-        tooltip.style.left = x + 'px';
-        tooltip.style.top  = y + 'px';
-
+        tooltip.style.maxWidth = Math.min(260, window.innerWidth - 30) + 'px';
+        let left = x + 12, top = y - tooltip.offsetHeight - 10;
+        if(left + tooltip.offsetWidth > window.innerWidth - 10) left = x - tooltip.offsetWidth - 12;
+        if(top < 8) top = y + 20;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
         clearTimeout(tooltipTimer);
-        tooltipTimer = setTimeout(hideTooltip, 5000);
+        tooltipTimer = setTimeout(() => tooltip.style.display = 'none', 4500);
     }
-
-    function hideTooltip() {
-        tooltip.style.display = 'none';
-        clearTimeout(tooltipTimer);
-    }
-
-    // ==================== TERM CLICK HANDLING ====================
-    // Single delegated listener on document — capture phase so it fires before button handlers
+    function hideTooltip() { tooltip.style.display = 'none'; clearTimeout(tooltipTimer); }
     document.addEventListener('click', (e) => {
-        const term = e.target.closest('.science-term');
-        if(term) {
-            // Stop the click from bubbling to the choice button's handler
-            e.stopPropagation();
-            e.preventDefault();
-            showTooltip(term, e.clientX, e.clientY);
-            return;
-        }
-        // Click anywhere else: hide tooltip
+        let term = e.target.closest('.science-term');
+        if(term) { e.stopPropagation(); showTooltip(term, e.clientX, e.clientY); return; }
         hideTooltip();
-    }, true); // <-- capture phase is the key fix
-
-    // Also support touch on mobile
+    }, true);
     document.addEventListener('touchend', (e) => {
-        const term = e.target.closest('.science-term');
-        if(term) {
-            e.stopPropagation();
-            e.preventDefault();
-            const touch = e.changedTouches[0];
-            showTooltip(term, touch.clientX, touch.clientY);
-        }
+        let term = e.target.closest('.science-term');
+        if(term) { e.preventDefault(); let t = e.changedTouches[0]; showTooltip(term, t.clientX, t.clientY); }
     }, true);
     
-    // ==================== MODAL SYSTEM ====================
-    function showModal(title, message, type, onConfirm) {
-        const modal = document.getElementById('customModal');
-        const header = document.getElementById('modalHeader');
-        const body = document.getElementById('modalBody');
-        const footer = document.getElementById('modalFooter');
-        const container = document.getElementById('modalContainer');
-        let borderColor = type === 'death' ? '#c0392b' : (type === 'warning' ? '#f39c12' : '#ff6b35');
-        container.style.borderColor = borderColor;
-        header.style.color = borderColor;
-        header.style.borderBottomColor = borderColor;
-        header.innerHTML = title;
-        body.innerHTML = message;
-        footer.innerHTML = '';
-        const confirmBtn = document.createElement('button');
-        confirmBtn.className = 'modal-btn primary';
-        confirmBtn.innerHTML = '⟡ CONTINUE ⟡';
-        confirmBtn.onclick = () => { modal.classList.remove('active'); if(onConfirm) onConfirm(); };
-        footer.appendChild(confirmBtn);
+    // Modal helpers
+    function showModal(title, msg, type, onConfirm) {
+        let modal = document.getElementById('customModal');
+        document.getElementById('modalHeader').innerHTML = title;
+        document.getElementById('modalBody').innerHTML = msg;
+        let foot = document.getElementById('modalFooter');
+        foot.innerHTML = '';
+        let btn = document.createElement('button');
+        btn.className = 'modal-btn primary';
+        btn.innerText = '⟡ CONTINUE ⟡';
+        btn.onclick = () => { modal.classList.remove('active'); if(onConfirm) onConfirm(); };
+        foot.appendChild(btn);
         modal.classList.add('active');
     }
-
-    function showGameComplete(message, onComplete) {
-        const modal = document.getElementById('customModal');
-        const header = document.getElementById('modalHeader');
-        const body = document.getElementById('modalBody');
-        const footer = document.getElementById('modalFooter');
-        const container = document.getElementById('modalContainer');
-        container.style.borderColor = '#2ecc71';
-        header.style.color = '#2ecc71';
-        header.style.borderBottomColor = '#2ecc71';
-        header.innerHTML = '✓ MISSION ACCOMPLISHED';
-        body.innerHTML = message;
-        footer.innerHTML = '';
-        const completeBtn = document.createElement('button');
-        completeBtn.className = 'modal-btn primary';
-        completeBtn.innerHTML = '⟡ CONTINUE ⟡';
-        completeBtn.onclick = () => { modal.classList.remove('active'); if(onComplete) onComplete(); };
-        footer.appendChild(completeBtn);
+    function showComplete(msg, cb) {
+        let modal = document.getElementById('customModal');
+        document.getElementById('modalHeader').innerHTML = '✓ MISSION ACCOMPLISHED';
+        document.getElementById('modalBody').innerHTML = msg;
+        let foot = document.getElementById('modalFooter');
+        foot.innerHTML = '';
+        let btn = document.createElement('button');
+        btn.className = 'modal-btn primary';
+        btn.innerText = '⟡ CONTINUE ⟡';
+        btn.onclick = () => { modal.classList.remove('active'); if(cb) cb(); };
+        foot.appendChild(btn);
         modal.classList.add('active');
     }
     
     // Starfield
-    function makeStars() {
-        const sf = document.getElementById('starfield');
-        if(!sf) return;
-        const count = window.innerWidth < 480 ? 60 : 140;
-        for(let i=0;i<count;i++) {
-            const s = document.createElement('div');
-            s.className = 'star';
-            const size = Math.random() * 2 + 0.5;
-            s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*3}s;`;
-            sf.appendChild(s);
-        }
-    }
+    function makeStars() { let sf = document.getElementById('starfield'); if(!sf) return; let c = window.innerWidth < 500 ? 70 : 140; for(let i=0;i<c;i++){ let s=document.createElement('div'); s.className='star'; let sz=Math.random()*2+0.5; s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;`; sf.appendChild(s); } }
     makeStars();
     
-    // ==================== SURVIVAL STATE ====================
-    let health = 85;
-    let supplies = 85;
-    let currentEventIdx = 0;
-    let gamePhase = 'intro';
-    let warningRemoved = false;
-    
+    // Game state
+    let health = 85, supplies = 85, currentEventIdx = 0, warningRemoved = false;
     const events = [
-        {
-            title: "❄️ THE COLD GRIP",
-            desc: "Temperature plummets to -85°C. Your <span class='science-term' data-def='Device maintaining suit temperature. Mars ranges from -125°C to 20°C.'>thermal regulator</span> is glitching. Frost coats every surface.",
-            choices: [
-                { text: "Reroute reactor heat to suit coils", desc: "Divert power from life support. Drains energy but keeps you warm.", healthCost: 5, supplyCost: 12, outcome: "Coils glow red. The cold recedes, but power cells are drained." },
-                { text: "Seal yourself in a shallow crevasse", desc: "Find natural shelter. Takes time and energy, but preserves supplies.", healthCost: 12, supplyCost: 5, outcome: "The crevasse blocks the wind. You're stiff but alive." },
-                { text: "Burn emergency flares for warmth", desc: "Quick warmth. Burns through supplies fast.", healthCost: 3, supplyCost: 18, outcome: "Flare heat lasts hours. Warm, but reserves are low." }
-            ]
-        },
-        {
-            title: "🌪️ DUST WALL",
-            desc: "A towering <span class='science-term' data-def='Planet-wide storms lasting months. Dust is toxic and electrostatically charged.'>dust storm</span> swallows the horizon. Visibility zero. Winds threaten to tear your shelter apart.",
-            choices: [
-                { text: "Anchor and ride it out", desc: "Secure everything and wait. Physically demanding but conserves supplies.", healthCost: 14, supplyCost: 6, outcome: "Storm passes. You're battered but supplies intact." },
-                { text: "Deploy inflatable emergency dome", desc: "Sacrifice supplies for a pressurized shelter.", healthCost: 4, supplyCost: 18, outcome: "Dome holds. Supplies depleted but you're safe." },
-                { text: "Dig a trench and cover with rocks", desc: "Manual labor. Exhausting but resourceful.", healthCost: 18, supplyCost: 4, outcome: "Trench saves you. Body aches, gear intact." }
-            ]
-        },
-        {
-            title: "☢️ RADIATION SPIKE",
-            desc: "Solar flare. <span class='science-term' data-def='Mars lacks magnetic field. Surface radiation 40-50x higher than Earth.'>Radiation</span> alarms scream. Cell damage imminent without protection.",
-            choices: [
-                { text: "Take shelter in a lava tube", desc: "Natural rock shielding. Safe but cold. A <span class='science-term' data-def='Natural underground tunnels from ancient lava. Provide radiation shielding.'>lava tube</span> blocks most particles.", healthCost: 8, supplyCost: 4, outcome: "Tube blocks radiation. Cold seeps in, but you're safe." },
-                { text: "Activate magnetic deflector", desc: "Emergency system. The <span class='science-term' data-def='Emergency shield creating artificial magnetic field. Power-hungry.'>magnetic deflector</span> is power-hungry but effective.", healthCost: 2, supplyCost: 24, outcome: "Deflector works. Power reserves critically low." },
-                { text: "Use anti-radiation meds", desc: "<span class='science-term' data-def='Medications that mitigate cellular damage from radiation.'>Anti-radiation meds</span> from your medical kit. Limited supply, saves your body.", healthCost: 12, supplyCost: 12, outcome: "Meds stabilize cells. Weak but alive." }
-            ]
-        },
-        {
-            title: "💨 OXYGEN CRISIS",
-            desc: "CO₂ levels spike. Your <span class='science-term' data-def='Removes CO₂ from air. Mars atmosphere is 95% CO₂.'>CO₂ scrubber</span> is clogged with <span class='science-term' data-def='Toxic salts in Martian soil. Damages lungs and equipment.'>perchlorate</span> dust.",
-            choices: [
-                { text: "Clean filters manually", desc: "Risky but preserves supplies.", healthCost: 12, supplyCost: 6, outcome: "Filters cleared. Hands raw, air flows again." },
-                { text: "Switch to emergency oxygen", desc: "Bypass the scrubber. Burns through reserves.", healthCost: 4, supplyCost: 22, outcome: "Emergency tanks buy time. Supplies draining fast." },
-                { text: "Ration air and slow breathe", desc: "Minimize consumption. Dangerous but resourceful.", healthCost: 18, supplyCost: 2, outcome: "You nearly black out, but the scrubber recovers." }
-            ]
-        },
-        {
-            title: "⚠️ THE FALLEN CLIFF",
-            desc: "A seismic tremor loosens a cliff face above. Rockslide thundering toward you. <span class='science-term' data-def='Only 38% of Earth\\'s gravity.'>Martian gravity</span> makes movement different.",
-            choices: [
-                { text: "Emergency thruster evasion", desc: "Burn fuel to leap clear. Saves your body, costs supplies.", healthCost: 4, supplyCost: 24, outcome: "You dodge death. Supply cache buried." },
-                { text: "Take cover under outcropping", desc: "Find solid rock and brace. Hard on the body.", healthCost: 20, supplyCost: 5, outcome: "Outcropping holds. Battered but alive. Supplies safe." },
-                { text: "Run to a deep trench", desc: "Flee as fast as possible. Balanced approach.", healthCost: 12, supplyCost: 8, outcome: "Trench saves you. Minor injuries, pack intact." }
-            ]
-        },
-        {
-            title: "🧊 FROZEN WATER RESERVES",
-            desc: "Your <span class='science-term' data-def='Reclaims moisture from breath and waste.'>water recycler</span> freezes solid. Without water, you have days at most.",
-            choices: [
-                { text: "Melt ice with suit heat", desc: "Slow process, drains suit power.", healthCost: 12, supplyCost: 10, outcome: "Water flows again. Power and rations drained." },
-                { text: "Dig for subsurface ice", desc: "Venture outside to find <span class='science-term' data-def='Water ice buried beneath Martian soil.'>subsurface ice</span>. Risky but preserves gear.", healthCost: 20, supplyCost: 4, outcome: "You find ice. Frostbite threatens, but supplies safe." },
-                { text: "Use chemical heat packs", desc: "Emergency packs. Fast but expensive.", healthCost: 4, supplyCost: 22, outcome: "Packs work quickly. Water flows, reserves gone." }
-            ]
-        }
+        { title: "❄️ THE COLD GRIP", desc: "Temperature -85°C. <span class='science-term' data-def='Device maintaining suit temperature.'>thermal regulator</span> glitches. Frost everywhere.", choices: [{text:"Reroute reactor heat", desc:"Drains power", healthCost:5,supplyCost:12,outcome:"Cold recedes, cells drained."},{text:"Seal in crevasse", desc:"Natural shelter", healthCost:12,supplyCost:5,outcome:"Stiff but alive."},{text:"Burn emergency flares", desc:"Quick warmth", healthCost:3,supplyCost:18,outcome:"Warm, reserves low."}] },
+        { title: "🌪️ DUST WALL", desc: "Towering <span class='science-term'>dust storm</span>. Zero visibility.", choices:[{text:"Anchor & ride out", desc:"Demanding", healthCost:14,supplyCost:6,outcome:"Battered but intact."},{text:"Deploy inflatable dome", desc:"Sacrifice supplies", healthCost:4,supplyCost:18,outcome:"Dome holds. Supplies gone."},{text:"Dig trench", desc:"Exhausting", healthCost:18,supplyCost:4,outcome:"Trench saves you."}] },
+        { title: "☢️ RADIATION SPIKE", desc: "Solar flare. <span class='science-term'>Radiation</span> alarms scream.", choices:[{text:"Shelter in lava tube", desc:"Natural shielding", healthCost:8,supplyCost:4,outcome:"Safe but cold."},{text:"Activate magnetic deflector", desc:"Power-hungry", healthCost:2,supplyCost:24,outcome:"Deflector works."},{text:"Use anti-radiation meds", desc:"Medical kit", healthCost:12,supplyCost:12,outcome:"Stabilized."}] },
+        { title: "💨 OXYGEN CRISIS", desc: "CO₂ scrubber clogged with <span class='science-term'>perchlorate</span>.", choices:[{text:"Clean filters manually", desc:"Risky", healthCost:12,supplyCost:6,outcome:"Filters cleared."},{text:"Emergency oxygen", desc:"Burns reserves", healthCost:4,supplyCost:22,outcome:"Tanks drain."},{text:"Ration air", desc:"Slow breath", healthCost:18,supplyCost:2,outcome:"Nearly blackout."}] },
+        { title: "⚠️ THE FALLEN CLIFF", desc: "Rockslide. <span class='science-term'>Martian gravity</span> changes movement.", choices:[{text:"Emergency thruster", desc:"Burn fuel", healthCost:4,supplyCost:24,outcome:"Escape, cache buried."},{text:"Take cover", desc:"Brace", healthCost:20,supplyCost:5,outcome:"Battered but alive."},{text:"Run to trench", desc:"Flee", healthCost:12,supplyCost:8,outcome:"Minor injuries."}] },
+        { title: "🧊 FROZEN WATER", desc: "Water recycler frozen. No water.", choices:[{text:"Melt ice with suit", desc:"Slow", healthCost:12,supplyCost:10,outcome:"Water flows."},{text:"Dig subsurface ice", desc:"Outside risk", healthCost:20,supplyCost:4,outcome:"Found ice."},{text:"Chemical heat packs", desc:"Expensive", healthCost:4,supplyCost:22,outcome:"Packs work quickly."}] }
     ];
     
-    const cinematicIntro = document.getElementById('cinematicIntro');
-    const survivalPhase = document.getElementById('survivalPhase');
-    const refugeeSection = document.getElementById('refugeeSection');
-    const startBtn = document.getElementById('startDescentBtn');
-    const healthFill = document.getElementById('healthFill');
-    const healthPercentSpan = document.getElementById('healthPercent');
-    const supplyFill = document.getElementById('supplyFill');
-    const supplyPercentSpan = document.getElementById('supplyPercent');
-    const eventTitleDiv = document.getElementById('eventTitle');
-    const eventDescDiv = document.getElementById('eventDesc');
-    const choicesArea = document.getElementById('choicesArea');
-    const criticalWarning = document.getElementById('criticalWarning');
+    const healthFill = document.getElementById('healthFill'), healthSpan = document.getElementById('healthPercent');
+    const supplyFill = document.getElementById('supplyFill'), supplySpan = document.getElementById('supplyPercent');
+    const eventTitle = document.getElementById('eventTitle'), eventDesc = document.getElementById('eventDesc'), choicesDiv = document.getElementById('choicesArea');
+    const criticalWarningDiv = document.getElementById('criticalWarning');
     
     function updateUI() {
-        health = Math.max(0, Math.min(100, health));
-        supplies = Math.max(0, Math.min(100, supplies));
-        healthFill.style.width = health + '%';
-        healthPercentSpan.innerText = health + '%';
-        supplyFill.style.width = supplies + '%';
-        supplyPercentSpan.innerText = supplies + '%';
-        if(health <= 25) healthFill.style.background = "var(--red)";
-        else if(health <= 50) healthFill.style.background = "var(--gold)";
-        else healthFill.style.background = "var(--rust)";
+        health = Math.min(100, Math.max(0, health)); supplies = Math.min(100, Math.max(0, supplies));
+        healthFill.style.width = health+'%'; healthSpan.innerText = health+'%';
+        supplyFill.style.width = supplies+'%'; supplySpan.innerText = supplies+'%';
+        if(health <= 25) healthFill.style.background = "var(--red)"; else if(health <= 50) healthFill.style.background = "var(--gold)"; else healthFill.style.background = "var(--rust)";
     }
-    
-    function die(reason) {
-        showModal('✖ LIFE SIGNS TERMINATED', `${reason}<br><br><span style="color:#888;">The red planet claims another soul.</span>`, 'death', () => {
-            localStorage.setItem("maxLevel", 4);
-            window.location.href = "level4.html";
-        });
-    }
-    
-    function applyConsequences(healthCost, supplyCost) {
-        health -= healthCost;
-        supplies -= supplyCost;
-        updateUI();
-        if(health <= 0) { die("Your body gives out. Mars' harsh environment was too much to bear."); return false; }
-        if(supplies <= 0) { die("Supplies exhausted. No food, no water, no power. You fade away."); return false; }
+    function die(reason) { showModal('✖ LIFE SIGNS TERMINATED', reason+'<br><span style="color:#888;">Mars claims another soul.</span>', 'death', () => { localStorage.setItem("maxLevel",4); window.location.href="level4.html"; }); }
+    function apply(healthCost, supplyCost) {
+        health -= healthCost; supplies -= supplyCost; updateUI();
+        if(health <= 0) { die("Your body gives out. Mars wins."); return false; }
+        if(supplies <= 0) { die("Supplies exhausted. You fade away."); return false; }
         return true;
     }
-    
-    function hideWarning() {
-        if(criticalWarning && !warningRemoved) {
-            criticalWarning.classList.add('hide-warning');
-            warningRemoved = true;
-        }
-    }
+    function hideWarning() { if(criticalWarningDiv && !warningRemoved) { criticalWarningDiv.classList.add('hide-warning'); warningRemoved=true; } }
     
     function renderEvent() {
-        if(currentEventIdx >= events.length) {
-            startRefugeeSequence();
-            return;
-        }
-        const ev = events[currentEventIdx];
-        eventTitleDiv.innerText = ev.title;
-        // Use innerHTML directly — terms already have data-def baked in
-        eventDescDiv.innerHTML = ev.desc;
-        choicesArea.innerHTML = '';
-        
-        ev.choices.forEach((choice) => {
-            const btn = document.createElement('button');
+        if(currentEventIdx >= events.length) { startRefugee(); return; }
+        let ev = events[currentEventIdx];
+        eventTitle.innerText = ev.title;
+        eventDesc.innerHTML = ev.desc;
+        highlightTerms(eventDesc);
+        choicesDiv.innerHTML = '';
+        ev.choices.forEach(c => {
+            let btn = document.createElement('button');
             btn.className = 'choice-btn';
-            // Build inner HTML; desc may contain science-term spans already
-            btn.innerHTML = `<span style="color:var(--glow);">▸ ${choice.text}</span><br><span style="font-size:clamp(0.68rem, 1.8vw, 0.8rem);color:#888;">${choice.desc}</span>`;
-
+            btn.innerHTML = `<span style="color:var(--glow);">▸ ${c.text}</span><br><span style="font-size:0.7rem;color:#aaa;">${c.desc}</span>`;
             btn.addEventListener('click', (e) => {
-                // If the click originated from a science term, ignore — tooltip handler took it
                 if(e.target.closest('.science-term')) return;
-
                 hideWarning();
                 document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
-                const survived = applyConsequences(choice.healthCost, choice.supplyCost);
-                if(!survived) return;
-                eventDescDiv.innerHTML = `<span style="color:var(--gold);">${choice.outcome}</span><br><br><span style="color:#888;">Preparing for next challenge...</span>`;
-                setTimeout(() => {
-                    currentEventIdx++;
-                    renderEvent();
-                }, 2000);
+                if(!apply(c.healthCost, c.supplyCost)) return;
+                eventDesc.innerHTML = `<span style="color:var(--gold);">${c.outcome}</span><br><span style="color:#888;">Next challenge...</span>`;
+                setTimeout(() => { currentEventIdx++; renderEvent(); }, 1800);
             });
-
-            choicesArea.appendChild(btn);
+            choicesDiv.appendChild(btn);
         });
     }
     
-    function startRefugeeSequence() {
-        survivalPhase.style.display = 'none';
-        refugeeSection.style.display = 'block';
-        gamePhase = 'refugee';
-        
-        const narrativeCard = document.getElementById('narrativeCard');
-        narrativeCard.innerHTML = `
-            <div class="phase-label" style="margin-bottom:12px;">// REFUGEE CAMP IV // MARS SURFACE // ARRIVAL</div>
-            <div class="dialogue">
-                <strong>[ RUINED HABITATION DOME — NORTHERN ACIDALIA PLANITIA ]</strong><br><br>
-                You collapse at the threshold of a half-buried dome. Emergency lights flicker. The air is thin but breathable. You made it.
-            </div>
-            <div class="dialogue">
-                A figure emerges from the shadows. A young woman with tired but knowing eyes. She wears patched EVA gear. Her presence feels timeless.
-            </div>
-            <div class="dialogue">
-                <strong>Woman :</strong> "I have been waiting, Thomas."
-            </div>
-            <div class="grave-marker">
-                <strong>GRAVE MARKER — DR. ARIS MANN</strong><br>
-                <b>Chief Engineer, ARES Program — Sol 1,204 · Olympus Detention Block C</b><br>
-                <i>He gave them the stars. They took his light.</i>
-            </div>
-            <div class="dialogue">
-                <strong>Thomas :</strong> "He... how did he die?"<br><br>
-                <strong>Woman :</strong> "They locked him in cryo for years. When resources dwindled, they let his mind rot. He died three years ago. The Corporation is dead too. Only a few remain, hiding in old domes."
-            </div>
-            <div class="dialogue">
-                She hands you a data drive etched with your name.
-            </div>
-            <div class="grave-marker" style="background:#0f0806; border-left-color:var(--gold);">
-                <strong>LOG_11\\ DR. ARIS MANN</strong><br><br>
-                <i>Thomas, I knew you would come. I want you to know the entire truth about what happened on that fateful day. The Earth wasn't cursed. It was destroyed, by a silent biowar. The biowar wasn't an accident. Elites started a silent war to seize control — engineered pathogens, atmospheric weapons. It destroyed Earth.<br><br>
-                I discovered the truth at Elysian. They threatened to kill your mother and you unless I built their escape rockets. I obeyed. They took your mother. You were left behind because of resource quotas. I couldn't save you.<br><br>
-                I improved ARES-I into a craft. I always hoped you'd find it. The curse was never yours — it was our greed. Now you know. I am sorry.. so sorry, for being a terrible father.<br><br>
-                — Aris Mann</i>
-            </div>
-            <div class="dialogue">
-                <strong>Thomas :</strong> "How did he know I'd be the one to find this? And who are you?"<br><br>
-                <strong>Woman :</strong> "He saw a future. A vision. It runs in your blood, Thomas Mann. Your father dreamed of you standing on Mars. The bloodline sees what others cannot. And about me.. I am just a <i>Passenger</i>."
-            </div>
-            <div class="dialogue">
-                The wind howls outside the dome. Mars stretches endlessly in all directions.
-            </div>
-            <div class="dialogue">
-                <strong>Woman :</strong> "Earth is gone. Broadcasting this changes nothing. The survivors here — they knew. They fled while millions died. But rebuilding... that is something you must start here."
-            </div>
-            <div class="final-message">
-                <strong style="color:var(--glow);">The red planet may not be as kind as she was, but now it's our turn to repay the kindness. Take care of Mars.</strong><br><br>
-                <span style="font-size:0.75rem;">Your journey ends.</span>
-            </div>
-            <button class="end-btn" id="completeGameBtn">COMPLETE THE ODYSSEY</button>
+    function startRefugee() {
+        document.getElementById('survivalPhase').style.display = 'none';
+        document.getElementById('refugeeSection').style.display = 'block';
+        let card = document.getElementById('narrativeCard');
+        card.innerHTML = `
+            <div class="phase-label">// REFUGEE CAMP // ARRIVAL</div>
+            <div class="dialogue"><strong>[RUINED DOME — ACIDALIA PLANITIA]</strong><br>You collapse at the threshold. Thin air, but breathable. You made it.</div>
+            <div class="dialogue">A woman emerges: <strong>"I have been waiting, Thomas."</strong></div>
+            <div class="grave-marker"><strong>GRAVE — DR. ARIS MANN</strong><br>Chief Engineer, ARES Program. Sol 1,204.<br><i>"He gave them stars. They took his light."</i></div>
+            <div class="dialogue"><strong>Thomas:</strong> "How did he die?"<br><strong>Woman:</strong> "Cryo, mind rot. Three years ago. The Corporation is dead."</div>
+            <div class="grave-marker" style="border-left-color:var(--gold);"><strong>LOG_11 // ARIS MANN</strong><br><i>Thomas, Earth was destroyed by silent biowar — elites unleashed it. I built rockets under threat. Your mother was taken. I couldn't save you. I upgraded ARES-I for you. I am sorry, for being a terrible father.<br>— Aris</i></div>
+            <div class="dialogue"><strong>Woman:</strong> "He saw a future. The bloodline sees what others cannot. I am just a Passenger."</div>
+            <div class="final-message"><strong style="color:var(--glow);">Mars awaits its stewards. Rebuild.</strong></div>
+            <button class="end-btn" id="completeGameBtn">⟡ COMPLETE ODYSSEY ⟡</button>
         `;
-        
-        const completeBtn = document.getElementById('completeGameBtn');
-        if(completeBtn) {
-            completeBtn.onclick = () => {
-                showGameComplete(
-                    "You have reached Mars. Dr. Mann's truth is now yours. The seeds of a new world are planted beneath Martian skies.<br><br><span style='color:#f39c12;'>The red planet awaits its stewards.</span>",
-                    () => {
-                        localStorage.setItem("maxLevel", 5);
-                        window.location.href = "index.html";
-                    }
-                );
-            };
-        }
-
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('completeGameBtn')?.addEventListener('click', () => {
+            showComplete("Truth uncovered. New world planted beneath Martian skies.<br><span style='color:#f39c12;'>The red planet awaits.</span>", () => { localStorage.setItem("maxLevel",5); window.location.href="index.html"; });
+        });
     }
     
-    function startDescentAndSurvival() {
+    function startDescent() {
         document.body.classList.add('bars-open');
-        const flashDiv = document.getElementById('flash');
-        flashDiv.style.opacity = '0.4';
-        flashDiv.style.background = 'var(--glow)';
-        setTimeout(() => { flashDiv.style.opacity = '0'; }, 500);
-        cinematicIntro.classList.add('hide');
+        let flashDiv = document.getElementById('flash');
+        flashDiv.style.opacity = '0.5'; flashDiv.style.background = 'var(--glow)';
+        setTimeout(() => flashDiv.style.opacity = '0', 500);
+        document.getElementById('cinematicIntro').classList.add('hide');
         setTimeout(() => {
-            cinematicIntro.style.display = 'none';
-            survivalPhase.style.display = 'flex';
-            health = 85;
-            supplies = 85;
-            currentEventIdx = 0;
-            warningRemoved = false;
-            if(criticalWarning) criticalWarning.classList.remove('hide-warning');
-            updateUI();
-            renderEvent();
-        }, 1500);
+            document.getElementById('cinematicIntro').style.display = 'none';
+            document.getElementById('survivalPhase').style.display = 'flex';
+            health = 85; supplies = 85; currentEventIdx = 0; warningRemoved = false;
+            if(criticalWarningDiv) criticalWarningDiv.classList.remove('hide-warning');
+            updateUI(); renderEvent();
+        }, 1300);
     }
-    
-    startBtn.addEventListener('click', startDescentAndSurvival);
+    document.getElementById('startDescentBtn').addEventListener('click', startDescent);
+    document.getElementById('restartBtn').addEventListener('click', () => location.reload());
     
     window.addEventListener('load', () => {
         document.body.classList.remove('bars-open');
-        cinematicIntro.style.display = 'flex';
-        survivalPhase.style.display = 'none';
-        refugeeSection.style.display = 'none';
+        document.getElementById('cinematicIntro').style.display = 'flex';
+        document.getElementById('survivalPhase').style.display = 'none';
+        document.getElementById('refugeeSection').style.display = 'none';
     });
 </script>
 </body>
